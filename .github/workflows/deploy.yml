@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
@@ -12,34 +14,34 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24 # Node 20 ke deprecation warning ko hatane ke liye ise 24 kiya hai [1]
+          # cache: 'npm' # Lock file missing error se bachne ke liye ise hata diya hai [1]
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install dependencies
+        run: npm install # package-lock.json nahi hai, isliye npm install ka use karein
 
-      - name: Build Application
+      - name: Build application
         run: npm run build
 
-      - name: Setup GitHub Pages
+      - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload Pages Artifact
+      - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'

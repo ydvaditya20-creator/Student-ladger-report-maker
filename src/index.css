@@ -1,0 +1,231 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply antialiased bg-slate-50 text-slate-900;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* ==========================================================================
+   Comprehensive Page Auto-Fit Print & Monochrome (B&W) Optimization
+   ========================================================================== */
+@media print {
+  @page {
+    size: landscape;
+    margin: 4mm 5mm 4mm 5mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    font-size: 8pt !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Reset outer container margins and paddings so content does not shift right */
+  #root,
+  #root > div,
+  .max-w-7xl,
+  main,
+  section,
+  header {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Strictly Hide only interactive controls (Buttons, inputs, tabs, search) */
+  .print\:hidden,
+  button,
+  input,
+  select,
+  textarea,
+  nav,
+  [role="tablist"],
+  [id^="tab-"],
+  [id^="btn-"],
+  header .print-hide {
+    display: none !important;
+  }
+
+  /* Ensure containers do not clip, scroll, or create horizontal overflow */
+  .overflow-x-auto,
+  .overflow-y-auto,
+  .overflow-hidden,
+  .max-h-\[520px\],
+  .max-h-\[580px\],
+  .max-h-\[90vh\],
+  .min-h-screen {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: auto !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Remove all fixed min-widths so table fits 100% within the printed landscape page */
+  [class*="min-w-"],
+  .min-w-\[1300px\],
+  .min-w-\[1200px\],
+  .min-w-\[1100px\],
+  .min-w-\[1000px\],
+  .min-w-\[900px\],
+  .min-w-\[800px\],
+  .min-w-\[700px\],
+  .min-w-\[600px\],
+  .min-w-\[500px\],
+  .min-w-\[400px\],
+  .min-w-\[300px\],
+  .min-w-\[200px\],
+  .min-w-\[100px\],
+  .min-w-\[130px\],
+  .min-w-\[125px\],
+  .min-w-\[120px\],
+  .min-w-\[115px\],
+  .min-w-\[110px\],
+  .min-w-\[105px\],
+  .min-w-\[95px\],
+  .min-w-\[90px\],
+  .min-w-\[85px\],
+  .min-w-\[80px\] {
+    min-width: 0 !important;
+  }
+
+  /* High-Contrast Print Cards & Containers */
+  section,
+  .bg-white,
+  .bg-slate-50,
+  .bg-indigo-50,
+  .bg-emerald-50,
+  .bg-blue-50,
+  .bg-rose-50,
+  .bg-amber-50,
+  .bg-purple-50 {
+    background-color: #ffffff !important;
+    border-color: #334155 !important;
+  }
+
+  /* High-Contrast Crisp Text */
+  h1, h2, h3, h4, p, span, div, td, th {
+    color: #000000 !important;
+  }
+
+  /* Top School & Student Meta Details Box */
+  header {
+    border-bottom: 2px solid #000000 !important;
+    margin-bottom: 4px !important;
+    padding-bottom: 3px !important;
+  }
+
+  /* Metric Summary Cards in Print */
+  .grid {
+    gap: 4px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Table styling: Auto-fit width to page, crisp borders, tight padding */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    table-layout: auto !important;
+    page-break-inside: auto !important;
+    font-size: 6.8pt !important;
+    line-height: 1.15 !important;
+    border: 1px solid #000000 !important;
+    margin: 0 !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+
+  thead tr {
+    background-color: #f1f5f9 !important;
+    border-bottom: 1.5px solid #000000 !important;
+  }
+
+  thead th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: 1px solid #475569 !important;
+    padding: 2px 2px !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    text-align: center !important;
+    font-size: 6.5pt !important;
+    line-height: 1.1 !important;
+  }
+
+  tfoot tr {
+    background-color: #f1f5f9 !important;
+    border-top: 1.5px solid #000000 !important;
+  }
+
+  tfoot td {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: 1px solid #475569 !important;
+    padding: 2px 2.5px !important;
+    font-size: 6.8pt !important;
+  }
+
+  tbody td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 1.8px 2.5px !important;
+    color: #000000 !important;
+    word-break: normal !important;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f8fafc !important;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
+  }
+
+  /* Prevent awkward page breaks */
+  .no-break,
+  header,
+  section {
+    page-break-inside: avoid !important;
+  }
+}

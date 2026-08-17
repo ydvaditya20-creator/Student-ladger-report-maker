@@ -1,6 +1,0 @@
-{
-  "name": "School Fee Ledger & Parser",
-  "description": "Extract and view student fee statements in an interactive tabular ledger with receipt generator and export options.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

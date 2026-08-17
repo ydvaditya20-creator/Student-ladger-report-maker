@@ -481,7 +481,7 @@ Har box ka data alag session mein show hoga.
 <button class="no-print" onclick="toggleEdit()" style="background-color: #ffc107; color: black;">
     ✏️ Edit Screen Live
 </button>
-<div style="text-align:center; font-family:Arial, sans-serif; font-weight:bold; line-height:1.4;">
+<div id="myDiv" style="text-align:center; display:none;font-family:Arial, sans-serif; font-weight:bold; line-height:1.4;">
     <div style="font-size:20px;">SHEMFORD SCHOOL</div>
     <div style="font-size:14px; font-weight:normal;">Natwa Road, Mirzapur - 231001, Uttar Pradesh</div>
 </div>
@@ -1428,7 +1428,7 @@ function extractStudentDetails(text) {
 ========================================================= */
 
 function extractAllSessions() {
-
+       document.getElementById("myDiv").style.display = "block";
     const textareas =
         document.querySelectorAll(
             ".session-text"

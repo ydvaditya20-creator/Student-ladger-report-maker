@@ -663,6 +663,31 @@ tbody tr:nth-child(even) {
 
 
 
+/* Button ki styling (Aap ise badal sakte hain) */
+.print-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.print-btn:hover {
+    background-color: #0056b3;
+}
+
+/* sabse zaroori hissa: Print karte waqt yeh button khud print nahi hoga */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+
+
 
 
 </style>
@@ -727,6 +752,10 @@ Har box ka data alag session mein show hoga.
     id="message"
     class="no-data">
 </div>
+    <!-- HTML Button -->
+<button onclick="window.print()" class="no-print print-btn">
+   Print / Save PDF
+</button>
 
 <div style="text-align:center; font-family:Arial, sans-serif; font-weight:bold; line-height:1.4;">
     <div style="font-size:20px;">SHEMFORD SCHOOL</div>

@@ -1,0 +1,3253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Multi Session Fee Extractor</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f9;
+}
+
+h2 {
+    margin-bottom: 8px;
+}
+
+p {
+    color: #444;
+}
+
+.session-box {
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.session-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+textarea {
+    width: 100%;
+    height: 180px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 18px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.add-button {
+    background-color: #007bff;
+}
+
+.extract-button {
+    background-color: #28a745;
+    font-size: 17px;
+    padding: 11px 25px;
+}
+
+.remove-button {
+    background-color: #dc3545;
+    float: right;
+    padding: 5px 10px;
+    margin-top: -4px;
+    font-size: 12px;
+}
+
+.no-data {
+    color: red;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+
+/* =========================
+   STUDENT DETAILS
+========================= */
+
+.student-details {
+    background: white;
+    border: 1px solid #d6d6d6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 20px;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.student-detail-item {
+    background: #f8f9fa;
+    border: 1px solid #eeeeee;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.detail-label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.student-detail-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #111;
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    min-width: 2300px;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+th,
+td {
+    border: 1px solid #dddddd;
+    padding: 9px;
+    text-align: center;
+    font-size: 13px;
+}
+
+
+/* ================================
+   COLUMN HEAD WRAP
+================================ */
+
+th {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+    line-height: 1.3;
+    min-width: 100px;
+    max-width: 180px;
+}
+
+th {
+    background-color: #72c6d9;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+
+/* =========================
+   SESSION HEADER
+========================= */
+
+.session-row td {
+    background-color: #d9eaf7 !important;
+    color: #174a6e;
+    font-weight: bold;
+    text-align: left;
+    font-size: 14px;
+}
+
+
+/* =========================
+   GRAND TOTAL
+========================= */
+
+.grand-total td {
+    background-color: #d9ead3 !important;
+    font-weight: bold;
+    color: #1d4d1d;
+}
+
+
+/* =========================
+   LATE FEE
+========================= */
+
+.late-cell {
+    background-color: ;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width: 900px) {
+
+    .student-details {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media(max-width: 500px) {
+
+    .student-details {
+        grid-template-columns: 1fr;
+    }
+
+}
+/* =====================================================
+   QUICK SUMMARY BOXES
+===================================================== */
+
+.quick-summary {
+    width: 100%;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+.summary-box {
+    background: white;
+    border-radius: 8px;
+    padding: 18px 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.summary-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.gross-box {
+    border-top: 4px solid #007bff;
+}
+
+.gross-box .summary-value {
+    color: #007bff;
+}
+
+.concession-box {
+    border-top: 4px solid #6f42c1;
+}
+
+.concession-box .summary-value {
+    color: #6f42c1;
+}
+
+.deposited-box {
+    border-top: 4px solid #28a745;
+}
+
+.deposited-box .summary-value {
+    color: #28a745;
+}
+
+.late-box {
+    border-top: 4px solid #fd7e14;
+}
+
+.late-box .summary-value {
+    color: #fd7e14;
+}
+
+.balance-box {
+    border-top: 4px solid #dc3545;
+}
+
+.balance-box .summary-value {
+    color: #dc3545;
+}
+
+
+@media(max-width: 900px) {
+
+    .quick-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media(max-width: 500px) {
+
+    .quick-summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+
+
+
+
+/* =========================================================
+   PRINT CSS
+   Sirf Student Details + Summary + Table print hoga
+========================================================= */
+
+@media print {
+
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
+    }
+
+
+    /* -----------------------------------------
+       PAGE BASIC
+    ----------------------------------------- */
+
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        width: 100% !important;
+    }
+
+
+    body {
+        font-family: Arial, sans-serif;
+        color: #000;
+    }
+
+
+    /* -----------------------------------------
+       PRINT NA KARNE WALI CHEEZEIN
+    ----------------------------------------- */
+
+    h2,
+    p,
+    #sessionContainer,
+    .add-button,
+    .extract-button,
+    #message {
+        display: none !important;
+    }
+
+
+    /* -----------------------------------------
+       STUDENT DETAILS
+    ----------------------------------------- */
+
+    #studentDetails {
+        display: grid !important;
+
+        grid-template-columns:
+            repeat(5, 1fr);
+
+        gap: 5px;
+
+        width: 100% !important;
+
+        margin: 0 0 8px 0 !important;
+
+        padding: 0 !important;
+
+        border: none !important;
+
+        box-sizing: border-box;
+    }
+
+
+    .student-detail-item {
+        border: 1px solid #999 !important;
+
+        padding: 5px !important;
+
+        background: white !important;
+
+        border-radius: 0 !important;
+
+        box-sizing: border-box;
+    }
+
+
+    .detail-label {
+        font-size: 8px !important;
+
+        margin-bottom: 2px !important;
+
+        color: #333 !important;
+    }
+
+
+    .student-detail-value {
+        font-size: 10px !important;
+
+        color: #000 !important;
+    }
+
+
+    /* -----------------------------------------
+       QUICK SUMMARY
+    ----------------------------------------- */
+
+    #quickSummary {
+        display: grid !important;
+
+        grid-template-columns:
+            repeat(5, 1fr);
+
+        gap: 5px;
+
+        width: 100% !important;
+
+        margin: 0 0 8px 0 !important;
+
+        padding: 0 !important;
+    }
+
+
+    .summary-box {
+        border: 1px solid #777 !important;
+
+        border-top: 3px solid #555 !important;
+
+        padding: 5px !important;
+
+        min-height: 45px;
+
+        background: white !important;
+
+        box-shadow: none !important;
+
+        border-radius: 0 !important;
+
+        box-sizing: border-box;
+    }
+
+
+    .summary-title {
+        font-size: 8px !important;
+
+        color: #222 !important;
+
+        margin-bottom: 2px !important;
+    }
+
+
+    .summary-value {
+        font-size: 12px !important;
+
+        color: #000 !important;
+    }
+
+
+    /* -----------------------------------------
+       TABLE CONTAINER
+    ----------------------------------------- */
+
+    .table-container {
+        width: 100% !important;
+
+        overflow: visible !important;
+
+        margin: 0 !important;
+
+        padding: 0 !important;
+    }
+
+
+    /* -----------------------------------------
+       TABLE
+    ----------------------------------------- */
+
+    #resultTable {
+        display: table !important;
+
+        width: 100% !important;
+
+        min-width: 0 !important;
+
+        max-width: 100% !important;
+
+        table-layout: fixed !important;
+
+        border-collapse: collapse !important;
+
+        font-size: 7px !important;
+
+        background: white !important;
+    }
+
+
+    /* -----------------------------------------
+       TABLE CELLS
+    ----------------------------------------- */
+
+    #resultTable th,
+    #resultTable td {
+
+        border: 1px solid #555 !important;
+
+        padding: 3px 2px !important;
+
+        text-align: center !important;
+
+        vertical-align: middle !important;
+
+        box-sizing: border-box;
+
+        overflow-wrap: break-word;
+
+        word-wrap: break-word;
+
+    }
+
+
+    /* -----------------------------------------
+       COLUMN HEADINGS
+    ----------------------------------------- */
+
+    #resultTable th {
+
+        background: #eeeeee !important;
+
+        color: #000 !important;
+
+        font-size: 7px !important;
+
+        font-weight: bold !important;
+
+        white-space: normal !important;
+
+        line-height: 1.15 !important;
+
+        height: auto !important;
+
+        position: static !important;
+    }
+
+
+    /* -----------------------------------------
+       TABLE VALUES
+    ----------------------------------------- */
+
+    #resultTable td {
+
+        font-size: 7px !important;
+
+        white-space: normal !important;
+
+        line-height: 1.15 !important;
+    }
+
+
+    /* -----------------------------------------
+       SESSION ROW
+    ----------------------------------------- */
+
+    #resultTable .session-row td {
+
+        background: #e5e5e5 !important;
+
+        color: #000 !important;
+
+        font-size: 8px !important;
+
+        font-weight: bold !important;
+
+        text-align: left !important;
+
+        padding: 4px !important;
+    }
+
+
+    /* -----------------------------------------
+       GRAND TOTAL
+    ----------------------------------------- */
+
+    #resultTable .grand-total td {
+
+        background: #e0e0e0 !important;
+
+        color: #000 !important;
+
+        font-weight: bold !important;
+
+        font-size: 7px !important;
+    }
+
+
+    /* -----------------------------------------
+       LATE FEE
+    ----------------------------------------- */
+
+    #resultTable .late-cell {
+
+        background: #eeeeee !important;
+
+        color: #000 !important;
+    }
+
+
+    /* -----------------------------------------
+       PAGE BREAK
+    ----------------------------------------- */
+
+    #studentDetails,
+    #quickSummary {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+
+    #resultTable {
+        page-break-inside: auto;
+    }
+
+
+    #resultTable tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+
+    /* -----------------------------------------
+       PRINT COLORS
+    ----------------------------------------- */
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+}
+
+
+
+
+
+
+</style>
+</head>
+
+
+<body>
+
+
+<h2>Advanced Multi-Session Fee Extractor</h2>
+
+<p>
+Ek student ke alag-alag academic session ka data alag box mein paste karein.
+Har box ka data alag session mein show hoga.
+</p>
+
+
+<!-- =====================================================
+     SESSION INPUT BOXES
+===================================================== -->
+
+<div id="sessionContainer">
+
+    <div class="session-box">
+
+        <div class="session-title">
+            Session / Text 1
+        </div>
+
+        <textarea
+            class="session-text"
+            placeholder="Yahan pehle session ka complete fee data paste karein..."
+        ></textarea>
+
+    </div>
+
+</div>
+
+
+<button
+    class="add-button"
+    onclick="addSessionBox()">
+
+    + Add Another Session
+
+</button>
+
+
+<br>
+
+
+<button
+    class="extract-button"
+    onclick="extractAllSessions()">
+
+    Extract All Sessions
+
+</button>
+
+
+<div
+    id="message"
+    class="no-data">
+</div>
+
+<div style="text-align:center; font-family:Arial, sans-serif; font-weight:bold; line-height:1.4;">
+    <div style="font-size:20px;">SHEMFORD SCHOOL</div>
+    <div style="font-size:14px; font-weight:normal;">Natwa Road, Mirzapur - 231001, Uttar Pradesh</div>
+</div>
+
+<!-- =====================================================
+     STUDENT DETAILS
+===================================================== -->
+
+<div
+    id="studentDetails"
+    class="student-details"
+    style="display:none;">
+    
+    <div class="student-detail-item">
+
+        <span class="detail-label">
+            Student Name
+        </span>
+
+        <span
+            id="studentName"
+            class="student-detail-value">
+            -
+        </span>
+
+    </div>
+
+
+    <div class="student-detail-item">
+
+        <span class="detail-label">
+            Admission No.
+        </span>
+
+        <span
+            id="admissionNo"
+            class="student-detail-value">
+            -
+        </span>
+
+    </div>
+
+
+    <div class="student-detail-item">
+
+        <span class="detail-label">
+            Class
+        </span>
+
+        <span
+            id="studentClass"
+            class="student-detail-value">
+            -
+        </span>
+
+    </div>
+
+
+    <div class="student-detail-item">
+
+        <span class="detail-label">
+            Father Name
+        </span>
+
+        <span
+            id="fatherName"
+            class="student-detail-value">
+            -
+        </span>
+
+    </div>
+
+
+    <div class="student-detail-item">
+
+        <span class="detail-label">
+            Father Contact
+        </span>
+
+        <span
+            id="fatherContact"
+            class="student-detail-value">
+            -
+        </span>
+
+    </div>
+
+</div>
+<!-- =====================================================
+     QUICK SUMMARY
+===================================================== -->
+
+<div id="quickSummary" class="quick-summary" style="display:none;">
+
+    <div class="summary-box gross-box">
+        <div class="summary-title">Total Gross Fee</div>
+        <div id="summaryGross" class="summary-value">0.00</div>
+    </div>
+
+    <div class="summary-box concession-box">
+        <div class="summary-title">Total Concession</div>
+        <div id="summaryConcession" class="summary-value">0.00</div>
+    </div>
+
+    <div class="summary-box deposited-box">
+        <div class="summary-title">Deposited Fee</div>
+        <div id="summaryDeposited" class="summary-value">0.00</div>
+    </div>
+
+    <div class="summary-box late-box">
+        <div class="summary-title">Late Fee</div>
+        <div id="summaryLate" class="summary-value">0.00</div>
+    </div>
+
+    <div class="summary-box balance-box">
+        <div class="summary-title">Fee Balance</div>
+        <div id="summaryBalance" class="summary-value">0.00</div>
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     RESULT TABLE
+===================================================== -->
+
+<div class="table-container">
+
+<table
+    id="resultTable"
+    style="display:none;">
+
+<thead>
+
+<tr>
+
+    <th>Month Details</th>
+
+    <th>
+        Monthly Composite Fees
+        without concession
+    </th>
+
+    <th>
+        Monthly Transport Fees
+        without concession
+    </th>
+
+    <th>
+        Processing Fee
+    </th>
+
+    <th>
+        Other Fees/Board
+        Exam Fees
+    </th>
+
+    <th>
+        Late Fine
+    </th>
+
+    <th>
+        Total Fees
+    </th>
+
+    <th>
+        Monthly Concession on
+        Monthly Composite Fees
+    </th>
+
+    <th>
+        Monthly Concession
+        on Transport
+    </th>
+
+    <th>
+        Concession on
+        Processing Fee
+    </th>
+
+    <th>
+        Fees Payable Amount
+    </th>
+
+    <th>
+        Fee Payment Date
+    </th>
+
+    <th>
+        Fees Paid Amount
+    </th>
+
+    <th>
+        Fees Balance Amount
+    </th>
+
+    <th>
+        Remarks
+    </th>
+
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   SESSION BOX COUNTER
+========================================================= */
+
+let sessionCounter = 1;
+
+
+
+/* =========================================================
+   ADD SESSION BOX
+========================================================= */
+
+function addSessionBox() {
+
+    sessionCounter++;
+
+    const container =
+        document.getElementById(
+            "sessionContainer"
+        );
+
+    const box =
+        document.createElement(
+            "div"
+        );
+
+    box.className =
+        "session-box";
+
+    box.innerHTML = `
+
+        <div class="session-title">
+
+            Session / Text ${sessionCounter}
+
+            <button
+                class="remove-button"
+                onclick="removeSessionBox(this)">
+
+                Remove
+
+            </button>
+
+        </div>
+
+        <textarea
+            class="session-text"
+            placeholder="Yahan next academic session ka complete fee data paste 
+
+karein..."
+        ></textarea>
+
+    `;
+
+    container.appendChild(box);
+
+}
+
+
+
+/* =========================================================
+   REMOVE SESSION BOX
+========================================================= */
+
+function removeSessionBox(button) {
+
+    const box =
+        button.closest(
+            ".session-box"
+        );
+
+    if (box) {
+
+        box.remove();
+
+    }
+
+}
+
+
+
+/* =========================================================
+   NUMBER CONVERTER
+========================================================= */
+
+function num(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === "-"
+    ) {
+
+        return 0;
+
+    }
+
+    let clean =
+        String(value)
+            .replace(/,/g, "")
+            .replace(/[₹Rs]/gi, "")
+            .trim();
+
+
+    let n =
+        parseFloat(clean);
+
+
+    return isNaN(n)
+        ? 0
+        : n;
+
+}
+
+
+
+/* =========================================================
+   MONEY FORMAT
+========================================================= */
+
+function money(value) {
+
+    return Number(
+        value || 0
+    ).toFixed(2);
+
+}
+
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+
+/* =========================================================
+   DATE PARSER
+========================================================= */
+
+function parseDate(dateStr) {
+
+    if (
+        !dateStr ||
+        dateStr === "-" ||
+        dateStr === "0"
+    ) {
+
+        return null;
+
+    }
+
+
+    let text =
+        String(dateStr)
+            .trim();
+
+
+    let parts =
+        text.split(
+            /[-\/.]/
+        );
+
+
+    if (
+        parts.length === 3
+    ) {
+
+        let day =
+            parseInt(
+                parts[0],
+                10
+            );
+
+
+        let month =
+            parseInt(
+                parts[1],
+                10
+            ) - 1;
+
+
+        let year =
+            parseInt(
+                parts[2],
+                10
+            );
+
+
+        if (
+            year < 100
+        ) {
+
+            year += 2000;
+
+        }
+
+
+        let d =
+            new Date(
+                year,
+                month,
+                day
+            );
+
+
+        if (
+            !isNaN(
+                d.getTime()
+            )
+        ) {
+
+            return d;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+
+/* =========================================================
+   ACADEMIC MONTH ORDER
+
+   APRIL = 0
+   MAY = 1
+   JUNE = 2
+   JULY = 3
+   AUGUST = 4
+   SEPTEMBER = 5
+   OCTOBER = 6
+   NOVEMBER = 7
+   DECEMBER = 8
+   JANUARY = 9
+   FEBRUARY = 10
+   MARCH = 11
+========================================================= */
+
+const academicMonthOrder = {
+
+    january: 9,
+    jan: 9,
+
+    february: 10,
+    feb: 10,
+
+    march: 11,
+    mar: 11,
+
+    april: 0,
+    apr: 0,
+
+    may: 1,
+
+    june: 2,
+    jun: 2,
+
+    july: 3,
+    jul: 3,
+
+    august: 4,
+    aug: 4,
+
+    september: 5,
+    sep: 5,
+    sept: 5,
+
+    october: 6,
+    oct: 6,
+
+    november: 7,
+    nov: 7,
+
+    december: 8,
+    dec: 8
+
+};
+
+
+
+/* =========================================================
+   GET ACADEMIC MONTH
+========================================================= */
+
+function getAcademicMonthNumber(period) {
+
+    if (!period) {
+
+        return 999;
+
+    }
+
+
+    let text =
+        String(period)
+            .toLowerCase()
+            .replace(/\s+/g, " ")
+            .trim();
+
+
+
+    /* ---------------------------------------------
+       DD/MM/YYYY
+    --------------------------------------------- */
+
+    let numeric =
+        text.match(
+            /(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/
+        );
+
+
+    if (numeric) {
+
+        let month =
+            parseInt(
+                numeric[2],
+                10
+            );
+
+
+        if (
+            month >= 4 &&
+            month <= 12
+        ) {
+
+            return month - 4;
+
+        }
+
+
+        if (
+            month >= 1 &&
+            month <= 3
+        ) {
+
+            return month + 8;
+
+        }
+
+    }
+
+
+
+    /* ---------------------------------------------
+       DD-MMM-YYYY
+    --------------------------------------------- */
+
+    let namedDate =
+        text.match(
+            /(\d{1,2})[-\/\s]+([a-z]+)[-\/\s]+(\d{4})/
+        );
+
+
+    if (namedDate) {
+
+        let monthName =
+            namedDate[2]
+                .substring(0, 3);
+
+
+        if (
+            academicMonthOrder[
+                monthName
+            ] !== undefined
+        ) {
+
+            return academicMonthOrder[
+                monthName
+            ];
+
+        }
+
+    }
+
+
+
+    /* ---------------------------------------------
+       Month Year
+    --------------------------------------------- */
+
+    let monthYear =
+        text.match(
+            /([a-z]+)[\s\-\/]+(\d{4})/
+        );
+
+
+    if (monthYear) {
+
+        let monthName =
+            monthYear[1]
+                .substring(0, 3);
+
+
+        if (
+            academicMonthOrder[
+                monthName
+            ] !== undefined
+        ) {
+
+            return academicMonthOrder[
+                monthName
+            ];
+
+        }
+
+    }
+
+
+
+    /* ---------------------------------------------
+       Month Only
+    --------------------------------------------- */
+
+    for (
+        let monthName in
+        academicMonthOrder
+    ) {
+
+        if (
+            text.includes(
+                monthName
+            )
+        ) {
+
+            return academicMonthOrder[
+                monthName
+            ];
+
+        }
+
+    }
+
+
+    return 999;
+
+}
+
+
+
+/* =========================================================
+   GET ACADEMIC SESSION YEAR
+========================================================= */
+
+function getAcademicSessionYear(period) {
+
+    if (!period) {
+
+        return 0;
+
+    }
+
+
+    let text =
+        String(period)
+            .toLowerCase()
+            .trim();
+
+
+
+    /* ---------------------------------------------
+       Numeric Date
+    --------------------------------------------- */
+
+    let numeric =
+        text.match(
+            /(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/
+        );
+
+
+    if (numeric) {
+
+        let month =
+            parseInt(
+                numeric[2],
+                10
+            );
+
+
+        let year =
+            parseInt(
+                numeric[3],
+                10
+            );
+
+
+        if (
+            year < 100
+        ) {
+
+            year += 2000;
+
+        }
+
+
+        /*
+         January-March belongs to
+         previous academic session.
+        */
+
+        if (
+            month >= 1 &&
+            month <= 3
+        ) {
+
+            return year - 1;
+
+        }
+
+
+        return year;
+
+    }
+
+
+
+    /* ---------------------------------------------
+       Month Name + Year
+    --------------------------------------------- */
+
+    let monthYear =
+        text.match(
+            /([a-z]+)[\s\-\/]+(\d{4})/
+        );
+
+
+    if (monthYear) {
+
+        let monthName =
+            monthYear[1]
+                .substring(0, 3);
+
+
+        let year =
+            parseInt(
+                monthYear[2],
+                10
+            );
+
+
+        let monthOrder =
+            academicMonthOrder[
+                monthName
+            ];
+
+
+        if (
+            monthOrder !== undefined
+        ) {
+
+            /*
+             January, February, March
+             previous session mein honge.
+            */
+
+            if (
+                monthOrder >= 9
+            ) {
+
+                return year - 1;
+
+            }
+
+
+            return year;
+
+        }
+
+    }
+
+
+    return 0;
+
+}
+
+
+
+/* =========================================================
+   STUDENT DETAILS
+========================================================= */
+
+function cleanStudentValue(value) {
+
+    return String(value)
+        .replace(/\*\*/g, "")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+}
+
+
+
+function extractStudentDetails(text) {
+
+    let result = {
+
+        name: "-",
+
+        admission: "-",
+
+        cls: "-",
+
+        father: "-",
+
+        contact: "-"
+
+    };
+
+
+    let match;
+
+
+
+    match =
+        text.match(
+            /Student\s*Name\s*:\s*([\s\S]*?)(?=\s+Admission\s*No\.?\s*:)/i
+        );
+
+
+    if (match) {
+
+        result.name =
+            cleanStudentValue(
+                match[1]
+            );
+
+    }
+
+
+
+    match =
+        text.match(
+            /Admission\s*No\.?\s*:\s*([\s\S]*?)(?=\s+Class\s*:)/i
+        );
+
+
+    if (match) {
+
+        result.admission =
+            cleanStudentValue(
+                match[1]
+            );
+
+    }
+
+
+
+    match =
+        text.match(
+            /Class\s*:\s*([\s\S]*?)(?=\s+Father\s*Name\s*:)/i
+        );
+
+
+    if (match) {
+
+        result.cls =
+            cleanStudentValue(
+                match[1]
+            );
+
+    }
+
+
+
+    match =
+        text.match(
+            /Father\s*Name\s*:\s*([\s\S]*?)(?=\s+Father\s*Contact\s*:)/i
+        );
+
+
+    if (match) {
+
+        result.father =
+            cleanStudentValue(
+                match[1]
+            );
+
+    }
+
+
+
+    match =
+        text.match(
+            /Father\s*Contact\s*:\s*([0-9+\-\s]+)/i
+        );
+
+
+    if (match) {
+
+        result.contact =
+            match[1].trim();
+
+    }
+
+
+    return result;
+
+}
+
+
+
+/* =========================================================
+   MAIN FUNCTION
+========================================================= */
+
+function extractAllSessions() {
+
+    const textareas =
+        document.querySelectorAll(
+            ".session-text"
+        );
+
+
+    const table =
+        document.getElementById(
+            "resultTable"
+        );
+
+
+    const tableBody =
+        document.getElementById(
+            "tableBody"
+        );
+
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    const studentDetails =
+        document.getElementById(
+            "studentDetails"
+        );
+
+
+    tableBody.innerHTML = "";
+
+    table.style.display = "none";
+
+    message.innerText = "";
+
+    studentDetails.style.display =
+        "none";
+
+
+
+    /* =====================================================
+       GET NON EMPTY SESSION BOXES
+    ===================================================== */
+
+    let sessionTexts = [];
+
+
+    textareas.forEach(
+        function(textarea) {
+
+            let value =
+                textarea.value.trim();
+
+
+            if (
+                value !== ""
+            ) {
+
+                sessionTexts.push(
+                    value
+                );
+
+            }
+
+        }
+    );
+
+
+    if (
+        sessionTexts.length === 0
+    ) {
+
+        message.innerText =
+            "Kripya kam se kam ek session ka data paste karein.";
+
+        return;
+
+    }
+
+
+
+    /* =====================================================
+       STUDENT DETAILS
+    ===================================================== */
+
+    let student = {
+
+        name: "-",
+
+        admission: "-",
+
+        cls: "-",
+
+        father: "-",
+
+        contact: "-"
+
+    };
+
+
+    sessionTexts.forEach(
+        function(text) {
+
+            let s =
+                extractStudentDetails(
+                    text
+                );
+
+
+            if (
+                student.name === "-" &&
+                s.name !== "-"
+            ) {
+
+                student.name =
+                    s.name;
+
+            }
+
+
+            if (
+                student.admission === "-" &&
+                s.admission !== "-"
+            ) {
+
+                student.admission =
+                    s.admission;
+
+            }
+
+
+            if (
+                student.cls === "-" &&
+                s.cls !== "-"
+            ) {
+
+                student.cls =
+                    s.cls;
+
+            }
+
+
+            if (
+                student.father === "-" &&
+                s.father !== "-"
+            ) {
+
+                student.father =
+                    s.father;
+
+            }
+
+
+            if (
+                student.contact === "-" &&
+                s.contact !== "-"
+            ) {
+
+                student.contact =
+                    s.contact;
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "studentName"
+    ).textContent =
+        student.name;
+
+
+    document.getElementById(
+        "admissionNo"
+    ).textContent =
+        student.admission;
+
+
+    document.getElementById(
+        "studentClass"
+    ).textContent =
+        student.cls;
+
+
+    document.getElementById(
+        "fatherName"
+    ).textContent =
+        student.father;
+
+
+    document.getElementById(
+        "fatherContact"
+    ).textContent =
+        student.contact;
+
+
+    studentDetails.style.display =
+        "grid";
+
+
+
+    /* =====================================================
+       TARGETS
+    ===================================================== */
+
+    const targets = [
+
+        "Monthly Composite Fees",
+
+        "PROCESSING FEES",
+
+        "TRANSPORT CHARGE"
+
+    ];
+
+
+
+    /* =====================================================
+       ALL MONTH DATA
+
+       IMPORTANT:
+
+       Key mein sessionIndex use hoga.
+
+       Session 1 April
+       !=
+       Session 2 April
+
+       Isliye dono kabhi merge nahi honge.
+    ===================================================== */
+
+    const monthData = {};
+
+
+
+    /* =====================================================
+       PROCESS EACH SESSION SEPARATELY
+    ===================================================== */
+
+    sessionTexts.forEach(
+        function(text, sessionIndex) {
+
+            const lines =
+                text.split(
+                    /\r?\n/
+                );
+
+
+            for (
+                let i = 0;
+                i < lines.length;
+                i++
+            ) {
+
+                let currentLine =
+                    lines[i].trim();
+
+
+                if (
+                    !currentLine
+                ) {
+
+                    continue;
+
+                }
+
+
+                let matchedHead =
+                    null;
+
+
+                for (
+                    let target of targets
+                ) {
+
+                    if (
+                        currentLine
+                            .toLowerCase()
+                            .includes(
+                                target.toLowerCase()
+                            )
+                    ) {
+
+                        matchedHead =
+                            target;
+
+                        break;
+
+                    }
+
+                }
+
+
+                if (
+                    !matchedHead
+                ) {
+
+                    continue;
+
+                }
+
+
+                let idx =
+                    currentLine
+                        .toLowerCase()
+                        .indexOf(
+                            matchedHead.toLowerCase()
+                        );
+
+
+                let dataPart =
+                    currentLine.substring(
+                        idx +
+                        matchedHead.length
+                    ).trim();
+
+
+
+                /* -----------------------------------------
+                   NEXT LINE DATA
+                ----------------------------------------- */
+
+                if (
+                    dataPart === "" &&
+                    i + 1 < lines.length
+                ) {
+
+                    let nextLine =
+                        lines[i + 1].trim();
+
+
+                    let nextIsKeyword =
+                        targets.some(
+                            function(target) {
+
+                                return nextLine
+                                    .toLowerCase()
+                                    .includes(
+                                        target.toLowerCase()
+                                    );
+
+                            }
+                        );
+
+
+                    if (
+                        !nextIsKeyword &&
+                        nextLine !== ""
+                    ) {
+
+                        dataPart =
+                            nextLine;
+
+                        i++;
+
+                    }
+
+                }
+
+
+                /* -----------------------------------------
+                   SPLIT VALUES
+                ----------------------------------------- */
+
+                let valuesArray =
+                    dataPart
+                        .split(
+                            /[\t]+|\s{2,}/
+                        )
+                        .map(
+                            function(v) {
+
+                                return v.trim();
+
+                            }
+                        )
+                        .filter(
+                            function(v) {
+
+                                return v !== "";
+
+                            }
+                        );
+
+
+                if (
+                    valuesArray.length <= 1 &&
+                    dataPart !== ""
+                ) {
+
+                    valuesArray =
+                        dataPart
+                            .split(
+                                /\s+/
+                            )
+                            .map(
+                                function(v) {
+
+                                    return v.trim();
+
+                                }
+                            )
+                            .filter(
+                                function(v) {
+
+                                    return v !== "";
+
+                                }
+                            );
+
+                }
+
+
+                if (
+                    valuesArray.length === 0
+                ) {
+
+                    continue;
+
+                }
+
+
+
+                /* -----------------------------------------
+                   ORIGINAL COLUMNS
+                ----------------------------------------- */
+
+                let cols =
+                    Array(12)
+                        .fill("-");
+
+
+                cols[0] =
+                    matchedHead;
+
+
+                for (
+                    let j = 0;
+                    j < valuesArray.length &&
+                    j + 1 < 12;
+                    j++
+                ) {
+
+                    cols[j + 1] =
+                        valuesArray[j];
+
+                }
+
+
+                /* -----------------------------------------
+                   ORIGINAL BALANCE LOGIC
+                ----------------------------------------- */
+
+                if (
+                    cols[6] === "0.00" ||
+                    cols[6] === 0
+                ) {
+
+                    cols[11] =
+                        cols[10];
+
+                    cols[10] =
+                        "-";
+
+                }
+
+
+
+                /* -----------------------------------------
+                   MONTH
+                ----------------------------------------- */
+
+                let period =
+                    cols[1];
+
+
+                if (
+                    !period ||
+                    period === "-"
+                ) {
+
+                    period =
+                        "Unknown Month";
+
+                }
+
+
+                let monthNumber =
+                    getAcademicMonthNumber(
+                        period
+                    );
+
+
+                let sessionYear =
+                    getAcademicSessionYear(
+                        period
+                    );
+
+
+
+                /* =================================================
+                   VERY IMPORTANT KEY
+
+                   SESSION INDEX + MONTH
+
+                   Example:
+
+                   0||0 = Text Box 1 April
+                   0||1 = Text Box 1 May
+
+                   1||0 = Text Box 2 April
+                   1||1 = Text Box 2 May
+
+                   Therefore:
+
+                   Text Box 1 April
+                   and
+                   Text Box 2 April
+
+                   are ALWAYS separate.
+                ================================================= */
+
+                let monthKey =
+                    sessionIndex +
+                    "||" +
+                    monthNumber;
+
+
+
+                /* -----------------------------------------
+                   CREATE ROW
+                ----------------------------------------- */
+
+                if (
+                    !monthData[monthKey]
+                ) {
+
+                    monthData[monthKey] = {
+
+                        sessionIndex:
+                            sessionIndex,
+
+                        sessionYear:
+                            sessionYear,
+
+                        month:
+                            period,
+
+                        monthNumber:
+                            monthNumber,
+
+                        composite:
+                            0,
+
+                        transport:
+                            0,
+
+                        processing:
+                            0,
+
+                        other:
+                            0,
+
+                        lateFine:
+                            0,
+
+                        compositeConcession:
+                            0,
+
+                        transportConcession:
+                            0,
+
+                        processingConcession:
+                            0,
+
+                        paid:
+                            0,
+
+                        balance:
+                            0,
+
+                        paymentDate:
+                            "-",
+
+                        remarks: []
+
+                    };
+
+                }
+
+
+                let row =
+                    monthData[monthKey];
+
+
+
+                /* =================================================
+                   PAYABLE AMOUNT
+
+                   cols[2]
+                ================================================= */
+
+                let payable =
+                    num(
+                        cols[2]
+                    );
+
+
+                let concession =
+                    num(
+                        cols[3]
+                    );
+
+
+                let paid =
+                    num(
+                        cols[6]
+                    );
+
+
+                let balance =
+                    num(
+                        cols[11]
+                    );
+
+
+
+                /* =================================================
+                   COMPOSITE
+                ================================================= */
+
+                if (
+                    matchedHead ===
+                    "Monthly Composite Fees"
+                ) {
+
+                    row.composite +=
+                        payable;
+
+                    row.compositeConcession +=
+                        concession;
+
+                }
+
+
+
+                /* =================================================
+                   TRANSPORT
+                ================================================= */
+
+                if (
+                    matchedHead ===
+                    "TRANSPORT CHARGE"
+                ) {
+
+                    row.transport +=
+                        payable;
+
+                    row.transportConcession +=
+                        concession;
+
+                }
+
+
+
+                /* =================================================
+                   PROCESSING
+                ================================================= */
+
+                if (
+                    matchedHead ===
+                    "PROCESSING FEES"
+                ) {
+
+                    row.processing +=
+                        payable;
+
+                    row.processingConcession +=
+                        concession;
+
+                }
+
+
+
+                /* =================================================
+                   PAID
+                ================================================= */
+
+                row.paid +=
+                    paid;
+
+
+
+                /* =================================================
+                   BALANCE
+                ================================================= */
+
+                row.balance +=
+                    balance;
+
+
+
+                /* =================================================
+                   PAYMENT DATE
+                ================================================= */
+
+                if (
+                    cols[10] &&
+                    cols[10] !== "-" &&
+                    cols[10] !== "0"
+                ) {
+
+                    row.paymentDate =
+                        cols[10];
+
+                }
+
+
+
+                /* =================================================
+                   LATE FEE CALCULATION
+                ================================================= */
+
+                let lateFeeAmount =
+                    0;
+
+
+                if (
+                    matchedHead ===
+                    "Monthly Composite Fees"
+                ) {
+
+                    let dueDateObj =
+                        parseDate(
+                            cols[5]
+                        );
+
+
+                    let paidDateObj =
+                        parseDate(
+                            cols[10]
+                        );
+
+
+                    if (
+                        dueDateObj &&
+                        paidDateObj
+                    ) {
+
+                        let dueYear =
+                            dueDateObj
+                                .getFullYear();
+
+
+                        let dueMonth =
+                            dueDateObj
+                                .getMonth();
+
+
+                        /*
+                         * April-December:
+                         * Session ends next March.
+                         *
+                         * January-March:
+                         * Session ends same March.
+                         */
+
+                        let sessionEndYear =
+                            (
+                                dueMonth >= 3
+                            )
+                            ? dueYear + 1
+                            : dueYear;
+
+
+                        let lastMarchDate =
+                            new Date(
+                                sessionEndYear,
+                                2,
+                                31
+                            );
+
+
+                        if (
+                            paidDateObj.getTime()
+                            >
+                            lastMarchDate.getTime()
+                        ) {
+
+                            paidDateObj =
+                                lastMarchDate;
+
+                        }
+
+
+                        let diffTime =
+                            paidDateObj.getTime()
+                            -
+                            dueDateObj.getTime();
+
+
+                        let diffDays =
+                            Math.ceil(
+                                diffTime /
+                                (
+                                    1000 *
+                                    60 *
+                                    60 *
+                                    24
+                                )
+                            );
+
+
+                        if (
+                            diffDays > 0
+                        ) {
+
+                            lateFeeAmount =
+                                diffDays * 3;
+
+                        }
+
+                    }
+
+                }
+
+
+
+                /* =================================================
+                   ADD LATE FEE
+                ================================================= */
+
+               if (
+    lateFeeAmount > 0
+) {
+
+    row.lateFine +=
+        lateFeeAmount;
+
+    row.remarks.push(
+        "Fee paid with Late Fine:"
+    );
+
+}
+else if (
+    row.balance > 0
+) {
+
+    row.remarks.push(
+        "Unpaid"
+    );
+
+}
+else {
+
+    row.remarks.push(
+        "Full Fee Paid"
+    );
+
+}
+
+                /* =================================================
+                   OTHER INFORMATION
+                ================================================= */
+
+                if (
+                    cols[4] &&
+                    cols[4] !== "-" &&
+                    cols[4] !== "0" &&
+                    cols[4] !== "0.00"
+                ) {
+
+                    row.remarks.push(
+                        "Waiver: " +
+                        cols[4]
+                    );
+
+                }
+
+
+                if (
+                    cols[7] &&
+                    cols[7] !== "-" &&
+                    cols[7] !== "0" &&
+                    cols[7] !== "0.00"
+                ) {
+
+                    row.remarks.push(
+                        "Excess: " +
+                        cols[7]
+                    );
+
+                }
+
+
+                if (
+                    cols[8] &&
+                    cols[8] !== "-" &&
+                    cols[8] !== "0" &&
+                    cols[8] !== "0.00"
+                ) {
+
+                    row.remarks.push(
+                        "Adjusted: " +
+                        cols[8]
+                    );
+
+                }
+
+
+                if (
+                    cols[9] &&
+                    cols[9] !== "-" &&
+                    cols[9] !== "0" &&
+                    cols[9] !== "0.00"
+                ) {
+
+                    row.remarks.push(
+                        "Refund: " +
+                        cols[9]
+                    );
+
+                }
+
+            }
+
+        }
+    );
+
+
+
+    /* =========================================================
+       SORT
+
+       IMPORTANT:
+
+       1. Session/Text box order
+       2. April -> March
+
+       Therefore same month different session
+       kabhi merge nahi hoga.
+    ========================================================= */
+
+    const monthKeys =
+        Object.keys(
+            monthData
+        );
+
+
+    monthKeys.sort(
+        function(a, b) {
+
+            const A =
+                monthData[a];
+
+            const B =
+                monthData[b];
+
+
+            /* FIRST: SESSION ORDER */
+
+            if (
+                A.sessionIndex !==
+                B.sessionIndex
+            ) {
+
+                return (
+                    A.sessionIndex -
+                    B.sessionIndex
+                );
+
+            }
+
+
+            /* SECOND: APRIL -> MARCH */
+
+            if (
+                A.monthNumber !==
+                B.monthNumber
+            ) {
+
+                return (
+                    A.monthNumber -
+                    B.monthNumber
+                );
+
+            }
+
+
+            return 0;
+
+        }
+    );
+
+
+
+    /* =========================================================
+       GRAND TOTAL VARIABLES
+    ========================================================= */
+
+    let grandComposite = 0;
+
+    let grandTransport = 0;
+
+    let grandProcessing = 0;
+
+    let grandOther = 0;
+
+    let grandLateFine = 0;
+
+    let grandTotal = 0;
+
+    let grandCompositeConcession = 0;
+
+    let grandTransportConcession = 0;
+
+    let grandProcessingConcession = 0;
+
+    let grandPayable = 0;
+
+    let grandPaid = 0;
+
+    let grandBalance = 0;
+
+
+    let currentSession = -1;
+
+
+
+    /* =========================================================
+       INSERT SORTED ROWS
+    ========================================================= */
+
+    monthKeys.forEach(
+        function(monthKey) {
+
+            const row =
+                monthData[
+                    monthKey
+                ];
+
+
+
+            /* =================================================
+               NEW SESSION HEADER
+
+               Session/Text 1
+               Session/Text 2
+
+               अलग रहेगा.
+            ================================================= */
+
+            /* =========================================================
+/* =========================================================
+   FEE DETAIL SESSION HEADER
+
+   Pasted text se direct:
+   Fee Detail for the (2025-2026)
+
+   uthaya jayega.
+========================================================= */
+
+if (
+    currentSession !==
+    row.sessionIndex
+) {
+
+    currentSession =
+        row.sessionIndex;
+
+
+    let sessionText =
+        "Fee Detail";
+
+
+    /*
+     * Current session ka original pasted text
+     */
+    let sessionSource =
+        sessionTexts[
+            row.sessionIndex
+        ];
+
+
+    /*
+     * Pasted text mein se:
+     *
+     * Fee Detail for the (2025-2026)
+     *
+     * find karo
+     */
+
+    let sessionMatch =
+        sessionSource.match(
+            /Fee\s*Detail\s*for\s*the\s*\(\s*([0-9]{4}\s*-\s*[0-9]{4})\s*\)/i
+        );
+
+
+    if (sessionMatch) {
+
+        sessionText =
+            "Fee Detail for the (" +
+            sessionMatch[1].replace(
+                /\s+/g,
+                ""
+            ) +
+            ")";
+
+    }
+
+
+    tableBody.innerHTML += `
+
+        <tr class="session-row">
+
+            <td colspan="15">
+
+                ${escapeHtml(
+                    sessionText
+                )}
+
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+
+            /* =================================================
+               TOTAL FEES FOR THIS MONTH
+
+               IMPORTANT:
+               Sirf isi row/session/month ka data.
+            ================================================= */
+
+            let totalFees =
+
+                row.composite +
+
+                row.transport +
+
+                row.processing +
+
+                row.other +
+
+                row.lateFine;
+
+
+
+            /* =================================================
+               FEES PAYABLE
+            ================================================= */
+
+            let feesPayable =
+
+                totalFees -
+
+                row.compositeConcession -
+
+                row.transportConcession -
+
+                row.processingConcession;
+
+
+
+            /* =================================================
+               REMARKS
+            ================================================= */
+
+            let uniqueRemarks =
+                [
+                    ...new Set(
+                        row.remarks
+                    )
+                ];
+
+
+            let remarksText =
+                uniqueRemarks.length > 0
+                    ? uniqueRemarks.join(
+                        " | "
+                    )
+                    : "-";
+
+
+
+            /* =================================================
+               MONTH ROW
+            ================================================= */
+
+            tableBody.innerHTML += `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(
+                            row.month
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.composite
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.transport
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.processing
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.other
+                        )}
+                    </td>
+
+
+                    <td
+                        class="${
+                            row.lateFine > 0
+                            ? "late-cell"
+                            : ""
+                        }">
+
+                        ${money(
+                            row.lateFine
+                        )}
+
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            totalFees
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.compositeConcession
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.transportConcession
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.processingConcession
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            feesPayable
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            row.paymentDate
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.paid
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${money(
+                            row.balance
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHtml(
+                            remarksText
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+
+
+            /* =================================================
+               GRAND TOTAL
+            ================================================= */
+
+            grandComposite +=
+                row.composite;
+
+
+            grandTransport +=
+                row.transport;
+
+
+            grandProcessing +=
+                row.processing;
+
+
+            grandOther +=
+                row.other;
+
+
+            grandLateFine +=
+                row.lateFine;
+
+
+            grandTotal +=
+                totalFees;
+
+
+            grandCompositeConcession +=
+                row.compositeConcession;
+
+
+            grandTransportConcession +=
+                row.transportConcession;
+
+
+            grandProcessingConcession +=
+                row.processingConcession;
+
+
+            grandPayable +=
+                feesPayable;
+
+
+            grandPaid +=
+                row.paid;
+
+
+            grandBalance +=
+                row.balance;
+
+        }
+    );
+
+
+
+    /* =========================================================
+       GRAND TOTAL ROW
+    ========================================================= */
+
+    tableBody.innerHTML += `
+
+        <tr class="grand-total">
+
+            <td>
+                GRAND TOTAL
+            </td>
+
+
+            <td>
+                ${money(
+                    grandComposite
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandTransport
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandProcessing
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandOther
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandLateFine
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandTotal
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandCompositeConcession
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandTransportConcession
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandProcessingConcession
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandPayable
+                )}
+            </td>
+
+
+            <td>
+                -
+            </td>
+
+
+            <td>
+                ${money(
+                    grandPaid
+                )}
+            </td>
+
+
+            <td>
+                ${money(
+                    grandBalance
+                )}
+            </td>
+
+
+            <td>
+                -
+            </td>
+
+        </tr>
+
+    `;
+
+    /* =========================================================
+   QUICK SUMMARY
+
+   IMPORTANT:
+   Yahan koi nayi calculation nahi ho rahi.
+
+   Sirf GRAND TOTAL ki existing values use ho rahi hain.
+========================================================= */
+
+
+/*
+   Total Gross Fee
+   = Grand Total Fees
+*/
+document.getElementById(
+    "summaryGross"
+).textContent =
+    money(grandTotal);
+
+
+/*
+   Total Concession
+
+   Grand Total mein already:
+   Composite Concession
+   + Transport Concession
+   + Processing Concession
+
+   available hai.
+*/
+let totalConcession =
+    grandCompositeConcession +
+    grandTransportConcession +
+    grandProcessingConcession;
+
+
+document.getElementById(
+    "summaryConcession"
+).textContent =
+    money(totalConcession);
+
+
+/*
+   Deposited Fee
+   = Grand Total Paid Amount
+*/
+document.getElementById(
+    "summaryDeposited"
+).textContent =
+    money(grandPaid);
+
+
+/*
+   Late Fee
+   = Grand Total Late Fine
+*/
+document.getElementById(
+    "summaryLate"
+).textContent =
+    money(grandLateFine);
+
+
+/*
+   Fee Balance
+   = Grand Total Balance Amount
+*/
+document.getElementById(
+    "summaryBalance"
+).textContent =
+    money(grandBalance);
+
+
+/*
+   Summary show karo
+*/
+document.getElementById(
+    "quickSummary"
+).style.display =
+    "grid";
+
+    /* =========================================================
+       SHOW TABLE
+    ========================================================= */
+
+    table.style.display =
+        "table";
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Information Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 50px 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .btn-container {
+            margin-top: 20px;
+        }
+        /* Anchor tag ko button jaisa dikhane ke liye style */
+        .btn {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none; /* Link ke niche ki line hatane ke liye */
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        /* Shemford Button (Blue) */
+        .btn-shemford {
+            background-color: #007bff;
+        }
+        .btn-shemford:hover {
+            background-color: #0056b3;
+        }
+        /* Natwa Button (Green) */
+        .btn-natwa {
+            background-color: #007bff;
+        }
+        .btn-natwa:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Ladger Reports Portal</h1>
+    <p class="subtitle">Please click on a school to open its page:</p>
+
+    <div class="btn-container">
+        <!-- Shemford School Redirect Button -->
+        <a href="Basahiindex.html" class="btn btn-shemford">Shemford School Basahi, Mirzapur</a>
+        
+        <!-- Natwa School Redirect Button -->
+        <a href="Natwaindex.html" class="btn btn-natwa">Natwa School Natwa, Mirzapur</a>
+    </div>
+
+</body>
+</html>

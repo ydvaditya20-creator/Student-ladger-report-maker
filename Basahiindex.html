@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fee Dashboard with Live Summary Boxes</title>
+      <!-- SheetJS Library for Excel Parsing -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><style>
+  
+    <style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 25px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.08);
+}
+
+h2 {
+    margin: 0 0 20px;
+    color: #1e3a8a;
+    font-size: 24px;
+}
+
+h3 {
+    margin: 0 0 15px;
+    color: #2563eb;
+    font-size: 17px;
+}
+
+.section-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.flex-box {
+    display: flex;
+    gap: 20px;
+}
+
+.flex-half {
+    flex: 1;
+}
+
+textarea,
+.search-box {
+    width: 90%;
+    padding: 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    outline: none;
+    font-family: inherit;
+}
+
+textarea {
+    height: 22px;
+    resize: none;
+}
+
+.search-container {
+    display: none;
+    margin-bottom: 15px;
+}
+
+.search-box {
+    font-size: 14px;
+}
+
+pre {
+    width: 100%;
+    height: 250px;
+    margin: 0;
+    padding: 12px;
+    overflow: auto;
+    background: #1e293b;
+    color: #f8fafc;
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: Consolas, monospace;
+}
+
+.file-input {
+    width: 90%;
+    padding: 7px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+}
+
+button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.student-info {
+    margin: 0 0 20px;
+    padding: 15px 18px;
+    background: #f8fafc;
+    border: 1px solid #dbeafe;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.student-info strong {
+    color: #1d4ed8;
+}
+
+.dashboard-grid {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.card {
+    flex: 1;
+    min-width: 0;
+    padding: 16px;
+    border-radius: 9px;
+    color: #080808;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    opacity: 0.95;
+}
+
+.card-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.bg-proc {
+    background:#f1f5f9;
+	border-left: 4px solid #2563eb;
+}
+
+.bg-comp {
+    background:#f1f5f9;
+	border-left: 4px solid #2563eb;
+}
+
+.bg-trans {
+    background:#f1f5f9;
+	border-left: 4px solid #2563eb;
+}
+
+.bg-conces {
+    background:#f1f5f9;
+	border-left: 4px solid #2563eb;
+}
+
+.bg-grand {
+    background:#f1f5f9;
+	border-left: 4px solid #2563eb;
+}
+
+.success-badge {
+    display: none;
+    margin-top: 8px;
+    padding: 5px 10px;
+    background: #d1fae5;
+    color: #065f46;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#tableContainer {
+    width: 100%;
+}
+
+#tableContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+#tableContainer th,
+#tableContainer td {
+    padding: 9px 8px;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+    font-size: 13px;
+}
+
+#tableContainer th {
+    background: #1e3a8a;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+#tableContainer tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+#tableContainer .total-row {
+    background: #e2e8f0 !important;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.receipt-badge {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: #fef08a;
+    color: #854d0e;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   PRINT REPORT
+   ========================================= */
+
+@media print {
+
+    @page {
+        size: A4;
+        margin: 8mm;
+    }
+
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* Hide everything except report */
+    #no-pr,
+    .section-box,
+    .search-container,
+    .container > button,
+    .container > h2:first-child {
+        display: none !important;
+    }
+
+    /* School heading */
+    .container > h2:not(:first-child) {
+        display: block !important;
+        margin: 0 0 8px !important;
+        padding: 0 0 6px !important;
+        border-bottom: 2px solid #1e3a8a;
+        color: #1e3a8a !important;
+        font-size: 19px !important;
+    }
+
+    /* Student information */
+    .student-info {
+        display: block !important;
+        margin: 0 0 10px !important;
+        padding: 7px 10px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-left: 4px solid #2563eb !important;
+        border-radius: 4px !important;
+        background: #f8fafc !important;
+        font-size: 11px !important;
+        line-height: 1.45 !important;
+        page-break-inside: avoid;
+    }
+
+    /* Summary */
+    .dashboard-grid {
+        display: flex !important;
+        gap: 6px !important;
+        margin: 0 0 10px !important;
+        page-break-inside: avoid;
+    }
+
+    .card {
+        padding: 7px 8px !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+
+    .card-title {
+        margin-bottom: 2px !important;
+        font-size: 8px !important;
+    }
+
+    .card-value {
+        font-size: 14px !important;
+		border-left: 4px solid #2563eb;
+    }
+
+    .bg-proc {
+        background: #f7e8e8 !important;
+		border-left: 4px solid #2563eb;
+    }
+
+    .bg-comp {
+        background: #f7e8e8 !important;
+		border-left: 4px solid #2563eb;
+    }
+
+    .bg-trans {
+        background: #f7e8e8 !important;
+		border-left: 4px solid #2563eb;
+    }
+
+    .bg-conces {
+        background: #f7e8e8 !important;
+		border-left: 4px solid #2563eb;
+    }
+
+    .bg-grand {
+        background: #f7e8e8 !important;
+		border-left: 4px solid #2563eb;
+    }
+
+    /* Table */
+    #tableContainer {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    #tableContainer table {
+        width: 100% !important;
+        margin: 0 !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto;
+    }
+
+    #tableContainer thead {
+        display: table-header-group;
+    }
+
+    #tableContainer tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    #tableContainer th,
+    #tableContainer td {
+        padding: 5px 4px !important;
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+        border: 1px solid #94a3b8 !important;
+    }
+
+    #tableContainer th {
+        background: #f7f3f3 !important;
+        color: #080808 !important;
+    }
+
+    #tableContainer tr:nth-child(even) {
+        background: #f8fafc !important;
+    }
+
+    #tableContainer .total-row {
+        background: #e2e8f0 !important;
+        color: #1e293b !important;
+        font-weight: 700 !important;
+    }
+
+    .receipt-badge {
+        padding: 2px 4px !important;
+        font-size: 8px !important;
+    }
+}
+
+
+/* Mobile */
+@media screen and (max-width: 700px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .flex-box {
+        flex-direction: column;
+    }
+
+    .dashboard-grid {
+        flex-wrap: wrap;
+    }
+
+    .card {
+        flex: 1 1 calc(50% - 6px);
+    }
+
+    #tableContainer {
+        overflow-x: auto;
+    }
+}
+
+
+  </style>
+</head>
+<body>
+<div class="container">
+  <div id="no-pr">
+    <!-- मुख्य डैशबोर्ड हेडर और स्कूल का नाम -->
+    <div class="dashboard-header-block" style="text-align: center; margin-bottom: 25px;">
+        <h2>⚙️ Data Parser Dashboard (Text & Excel)</h2>
+        
+    </div>
+
+    <!-- स्टेप 1 और स्टेप 2: डेटा इनपुट सेक्शन (Flex/Grid Layout) -->
+    <div class="input-sections-wrapper" style="display: flex; gap: 20px; margin-bottom: 10px;">
+        <!-- STEP 1: RAW TEXT PARSER -->
+        <div class="section-box" style="flex: 1;">
+            <h3>1. Paste Student Statement Text</h3>
+            <div class="flex-box">
+                <div class="flex-half">
+                    <textarea id="rawTextInput" placeholder="Shemford School text paste karein..." style="width: 90%; min-height: 24px; margin-bottom: 6px;"></textarea>
+                    <button onclick="parseRawTextData()">Process & Generate</button>
+                    <div id="uploadStats" class="success-badge" style="margin-top: 5px;">✓ Text parsed Successfully!</div>
+                </div>
+                <div class="flex-half" style="display:none">
+                    <pre id="schoolDataOutput">Output schoolData JSON yahan dikhega...</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: EXCEL FILE UPLOADER -->
+        <div class="section-box" style="flex: 1;">
+            <h3>2. Upload Receipts Excel File (.xlsx)</h3>
+            <div class="flex-box">
+                <div class="flex-half">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #64748b;"></p>
+                    <input type="file" id="excelFileInput" class="file-input" accept=".xlsx, .xls" multiple style="margin-bottom: 15px;">
+                    <div id="uploadStatus" class="success-badge">✓ File Processed Successfully!</div>
+                </div>
+                <div class="flex-half" style="display:none">
+                    <pre id="receiptDataOutput">Output receiptData JSON yahan dikhega...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- डैशबोर्ड लोड करने और पेज एडिट करने का कंट्रोल बार -->
+    <div class="action-control-bar" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 5px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+        <button onclick="generateDashboardReport()" style="padding: 10px 10px; font-weight: bold; background-color: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            🚀 Load Student Data & Open Dashboard
+        </button>
+        <button id="editPageBtn" onclick="toggleEditMode()" style="padding: 8px 8px; width: auto; font-size: 13px; font-weight: bold; background-color: #f97e6c; color: hwb(0 2% 98%); border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif;">
+            Edit Page: OFF
+        </button>
+    </div>
+<div class="table-controls-wrapper" style="background: #f1f5f9; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 20px;">
+        
+        <!-- सर्च बार -->
+        <div class="search-container" id="searchWrapper" style="margin-bottom: 15px;">
+            <input type="text" id="tableSearchInput" class="search-box" onkeyup="filterTableAndRecalculate()" placeholder="🔍 Search month, date or receipt no... Summary boxes will update live!" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+        </div>
+
+        <!-- रो और कॉलम को मनचाही जगह जोड़ने/हटाने का टूल -->
+        <div class="dynamic-modifiers" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <!-- रो कंट्रोलर -->
+            <div style="flex: 1; min-width: 250px; background: white; padding: 6px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <strong style="color: #334155; display: block; margin-bottom: 8px;">🔲 रो (Row) कंट्रोल:</strong>
+                <div style="display: flex; gap: 5px;">
+                    <input type="number" id="rowIndex" placeholder="Idx (उदा: 1)" min="1" style="width: 80px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <button onclick="addAtRow()" style="padding: 6px 10px; background: #0ea5e9; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">वहाँ जोड़ें</button>
+                    <button onclick="deleteAtRow()" style="padding: 6px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">हटाएँ</button>
+                </div>
+            </div>
+
+            <!-- कॉलम कंट्रोलर -->
+            <div style="flex: 1; min-width: 250px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <strong style="color: #334155; display: block; margin-bottom: 8px;">📐 कॉलम (Column) कंट्रोल:</strong>
+                <div style="display: flex; gap: 5px;">
+                    <input type="number" id="colIndex" placeholder="Idx (उदा: 1)" min="1" style="width: 80px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <button onclick="addAtColumn()" style="padding: 6px 10px; background: #0ea5e9; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">वहाँ जोड़ें</button>
+                    <button onclick="deleteAtColumn()" style="padding: 6px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">हटाएँ</button>
+                </div>
+            </div>
+        </div>
+    </div></div>
+<div style="margin-top: 15px;">
+            <button id="myToggleButton" onclick="toggleText()" style="padding: 8px 16px; font-size:24px; font-weight: bold; background-color: white; color: black; border: 0px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-family: sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                Shemford School Basahi , Mirzapur
+            </button>
+        </div>
+    <!-- स्टूडेंट डिटेल्स स्टेटस -->
+    <div class="student-info" id="studentDetail" style="background: #eff6ff; color: #1e40af; padding: 12px; border-radius: 6px; border-left: 4px solid #3b82f6; margin-bottom: 25px; font-weight: 5px;">
+        Click the button above to load data and system dashboard...
+    </div>
+
+    <!-- 📊 Top Summary Boxes Dashboard -->
+    <div class="dashboard-grid" id="dashboardSection" style="margin-bottom: 25px;">
+        <div class="card bg-grand">
+            <div class="card-title">Gross Total Fee</div>
+            <div class="card-value" id="boxGrand">0.00</div>
+        </div>
+        <div class="card bg-conces">
+            <div class="card-title">Concession</div>
+            <div class="card-value" id="boxConces">0.00</div>
+        </div>
+        <div class="card bg-comp">
+            <div class="card-title">Total Fees Paid</div>
+            <div class="card-value" id="boxpaid">0.00</div>
+        </div>
+        <div class="card bg-trans">
+            <div class="card-title">Total Late Fine</div>
+            <div class="card-value" id="boxlatefee">0.00</div>
+        </div>
+        <div class="card bg-trans">
+            <div class="card-title">Total Due</div>
+            <div class="card-value" id="boxdue">0.00</div>
+        </div>
+    </div>
+
+    <!-- 🔍 सर्च और डायनेमिक रो/कॉलम एडिटर पैनल (एक साथ व्यवस्थित) -->
+    
+    <!-- 📋 डेटा टेबल यहाँ लोड होगी -->
+    <div id="tableContainer"></div>
+</div>
+
+<script>// 1. नई रो (Row) जोड़ने का फंक्शन
+// 1. मनचाही जगह पर रो (Row) जोड़ना
+function addAtRow() {
+  const table = document.getElementById("reportTable");
+  if (!table) return alert("टेबल नहीं मिली!");
+
+  // इनपुट से नंबर लें (1-based index को 0-based में बदलने के लिए -1 किया)
+  let inputVal = document.getElementById("rowIndex").value;
+  if (!inputVal) return alert("कृपया रो नंबर डालें!");
+  
+  let targetIndex = parseInt(inputVal); // हेडर को छोड़कर गिनने के लिए
+
+  const tbody = table.getElementsByTagName("tbody")[0];
+  const maxRows = tbody.rows.length;
+
+  // अगर यूजर ज्यादा बड़ा नंबर डाल दे, तो आखिरी में जोड़ दें
+  if (targetIndex > maxRows) targetIndex = maxRows;
+  if (targetIndex < 0) targetIndex = 0;
+
+  // ठीक उसी इंडेक्स पर नई रो बनाएँ
+  const newRow = tbody.insertRow(targetIndex);
+  const columnCount = table.rows[0].cells.length; // हेडर से कॉलम गिने
+
+  for (let i = 0; i < columnCount; i++) {
+    const newCell = newRow.insertCell();
+    newCell.innerText = "नया डेटा";
+  }
+}
+
+// 2. मनचाही रो (Row) हटाना
+function deleteAtRow() {
+  const table = document.getElementById("reportTable");
+  if (!table) return;
+
+  let inputVal = document.getElementById("rowIndex").value;
+  if (!inputVal) return alert("कृपया रो नंबर डालें!");
+  
+  let targetIndex = parseInt(inputVal); 
+
+  const tbody = table.getElementsByTagName("tbody")[0];
+  const maxRows = tbody.rows.length;
+
+  if (targetIndex >= 0 && targetIndex < maxRows) {
+    tbody.deleteRow(targetIndex);
+  } else {
+    alert("इस नंबर की कोई रो नहीं है!");
+  }
+}
+
+// 3. मनचाही जगह पर कॉलम (Column) जोड़ना
+function addAtColumn() {
+  const table = document.getElementById("reportTable");
+  if (!table) return;
+
+  let inputVal = document.getElementById("colIndex").value;
+  if (!inputVal) return alert("कृपया कॉलम नंबर डालें!");
+  
+  let targetIndex = parseInt(inputVal) - 1; // 0-based index
+
+  const totalCols = table.rows[0].cells.length;
+  if (targetIndex > totalCols) targetIndex = totalCols;
+  if (targetIndex < 0) targetIndex = 0;
+
+  // टेबल की हर एक रो में उस खास पोजीशन पर सेल घुसाएँ
+  for (let i = 0; i < table.rows.length; i++) {
+    const newCell = table.rows[i].insertCell(targetIndex);
+    
+    if (i === 0) {
+      newCell.outerHTML = "<th>नया हेडर</th>";
+    } else {
+      newCell.innerText = "-";
+    }
+  }
+}
+
+// 4. मनचाहा कॉलम (Column) हटाना
+function deleteAtColumn() {
+  const table = document.getElementById("reportTable");
+  if (!table) return;
+
+  let inputVal = document.getElementById("colIndex").value;
+  if (!inputVal) return alert("कृपया कॉलम नंबर डालें!");
+  
+  let targetIndex = parseInt(inputVal) - 1; 
+
+  const totalCols = table.rows[0].cells.length;
+
+  if (totalCols <= 1) return alert("कम से कम एक कॉलम बचना ज़रूरी है!");
+
+  if (targetIndex >= 0 && targetIndex < totalCols) {
+    for (let i = 0; i < table.rows.length; i++) {
+      table.rows[i].deleteCell(targetIndex);
+    }
+  } else {
+    alert("इस नंबर का कोई कॉलम नहीं है!");
+  }
+}
+
+
+    function toggleEditMode() {
+  const btn = document.getElementById("editPageBtn");
+  
+  // Agar abhi edit mode ON hai, toh OFF karo
+  if (document.body.contentEditable === "true") {
+    document.body.contentEditable = "false";
+    btn.innerText = "Edit Page: OFF";
+    btn.style.backgroundColor = "#28a745"; // Green color
+  } 
+  // Agar edit mode OFF hai, toh ON karo
+  else {
+    document.body.contentEditable = "true";
+    btn.innerText = "Edit Page: ON";
+    btn.style.backgroundColor = "#dc3545"; // Red color
+    
+    // Edit mode ON hote hi button khud ko editable hone se rokta hai
+    btn.contentEditable = "false";
+  }
+}
+    function toggleText() {
+  var btn = document.getElementById("myToggleButton");
+  if (btn.innerText === "Shemford School Basahi , Mirzapur") {
+    btn.innerText = "Shemford School Natwa , Mirzapur";
+  } else {
+    btn.innerText = "Shemford School Basahi , Mirzapur";
+  }
+}
+    // JSON Source 1 (Fee Records)
+    let reciedata = {
+    "receipt_no": "N-26-0894",
+    "admission_no": "N-2023053",
+    "payment_mode": "Cash",
+    "deposite_date": "19-08-2026"
+  };
+    let scoohdata = {
+  "student_info": {
+    "student_name": "TEJAS RAO",
+    "admission_no": "N-2023060",
+    "class": "UKG-A",
+    "father_name": "PIYUSH KUMAR",
+    "father_contact": "7388552572"
+  },
+  "fee_records": [
+    {
+      "fee_head": "Monthly Composite Fees",
+      "month": "April 25",
+      "payable_amount": "2690.00",
+      "concession": "700.00",
+      "value_4": "0.00",
+      "due_date": "10-04-2025",
+	  
+      "paid_amount": "1990.00",
+      "value_7": "0.00",
+      "value_8": "0.00",
+      "value_9": "0.00",
+      "paid_date": "04-09-2025",
+      "balance": "0.00",
+	  "late_fee": "0.00"
+   }]};
+    
+function generateDashboardReport() {
+    let info = schoolData.student_info;
+
+    document.getElementById("studentDetail").innerHTML = `
+        <strong>Student Name:</strong> ${info.student_name} &nbsp;|&nbsp; 
+        <strong>Admission No:</strong> ${info.admission_no} &nbsp;|&nbsp; 
+        <strong>Class:</strong> ${info.class}
+    `;
+
+    // 1. DYNAMIC CHECK: Kya data me processing fees exist karti hai?
+    let hasProcessingFee = schoolData.fee_records.some(record => record.fee_head === "PROCESSING FEES");
+
+    let groupedRecords = {};
+
+    // Group fee records by month + paid date
+    schoolData.fee_records.forEach(record => {
+        let groupKey = `${record.month}_${record.paid_date}`;
+
+        if (!groupedRecords[groupKey]) {
+            groupedRecords[groupKey] = {
+                month: record.month,
+                date: record.paid_date,
+                processing: 0,
+                composite: 0,
+                transport: 0,
+                concession: 0,
+                processingConcession: 0,
+                compositeConcession: 0,
+                transportConcession: 0,
+                compositeLateFee: 0,
+                paid: 0,
+                balance: 0
+            };
+        }
+
+        let base_payable = parseFloat(record.payable_amount) || 0; 
+        let concession_amount = parseFloat(record.concession) || 0;
+        let late_fee_amount = parseFloat(record.late_fee) || 0;
+        let actual_paid = parseFloat(record.paid_amount) || 0;
+        let record_balance = parseFloat(record.balance) || 0;
+
+        groupedRecords[groupKey].paid += actual_paid;
+        groupedRecords[groupKey].balance += record_balance;
+
+        if (record.fee_head === "PROCESSING FEES") {
+            groupedRecords[groupKey].processing += base_payable;
+            groupedRecords[groupKey].concession += concession_amount;
+            groupedRecords[groupKey].processingConcession += concession_amount;
+            
+        } else if (record.fee_head === "Monthly Composite Fees") {
+            groupedRecords[groupKey].composite += base_payable;
+            groupedRecords[groupKey].concession += concession_amount;
+            groupedRecords[groupKey].compositeConcession += concession_amount;
+            groupedRecords[groupKey].compositeLateFee += late_fee_amount;
+
+        } else if (record.fee_head === "TRANSPORT CHARGE") {
+            groupedRecords[groupKey].transport += base_payable;
+            groupedRecords[groupKey].concession += concession_amount;
+            groupedRecords[groupKey].transportConcession += concession_amount;
+        }
+    });
+
+    // 2. DYNAMIC HEADERS: Processing fee ke basis par headers render karein
+    let tableHtml = `
+        <table id="reportTable" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width:100%;">
+            <thead>
+                <tr>
+                    <th>Month Details</th>
+                    <th>Monthly Composite Fees without concession</th>
+                    <th>Monthly Transport Fees without concession</th>
+                    ${hasProcessingFee ? `<th>Processing Fees</th>` : ''}
+                    <th>Late Fine on composite fee</th>
+                    <th>Total Fees without Concession</th>
+		                 			${hasProcessingFee ? `<th>Concession on Processing Fees</th>` : ''}
+                    <th>Concession on Monthly composite Fees</th>
+                    <th>Monthly Concession on Transport</th>
+                    <th>Total Fees Payable Amount with Concession </th>
+                    <th>Fee Payment Date</th>
+                    <th>Fees Receipt No.</th>
+                    <th>Paid Amount</th>
+                    <th>Fees Balance Amount</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+    // Generate rows
+    for (let key in groupedRecords) {
+        let data = groupedRecords[key];
+
+        let compositeFee = data.composite;
+        let transportFee = data.transport;
+        let otherFee = data.processing; 
+        let lateFee = data.compositeLateFee;
+        let procConcession = data.processingConcession;
+		
+        let compConcession = data.compositeConcession;
+        let transConcession = data.transportConcession;
+        
+        let totalFees = compositeFee + transportFee + otherFee + lateFee;
+        let totalConcession = compConcession + transConcession + procConcession;
+        let payableAmount = totalFees - totalConcession;
+       
+		
+        // Maan lete hain data pehle se available hai
+// Maan lete hain data pehle se available hai
+let paidAmount = Number(data.paid) || 0; 
+let balanceAmount = Number(data.balance) || 0;
+
+
+// 1. Pehle paid amount check kijiye
+if (paidAmount === 0) {
+    balanceAmount = balanceAmount + lateFee;
+} else {
+    // Agar kuch pay kiya hai, to balance kam hoga
+    balanceAmount = balanceAmount - paidAmount; 
+    balanceAmount = balanceAmount + paidAmount;
+    paidAmount = paidAmount + lateFee;
+}
+
+
+
+        // Receipt Matching
+        let receiptList = Array.isArray(receiptData) ? receiptData : [receiptData];
+        let matchedReceipt = receiptList.find(r => {
+            let receiptAdmNo = String(r.admission_no || "").trim();
+            let infoAdmNo = String(info.admission_no || "").trim();
+            let receiptDate = String(r.deposite_date || "").replace(/\D/g, "");
+            let infoDate = String(data.date || "").replace(/\D/g, "");
+            return (receiptAdmNo === infoAdmNo && receiptDate === infoDate);
+        });
+        let receiptNo = matchedReceipt ? matchedReceipt.receipt_no : "Pending";
+		let paymentMode = matchedReceipt ? matchedReceipt.payment_mode : "";
+        let remark = balanceAmount <= 0 ? "Paid" : "Due";
+
+        // 3. DYNAMIC ROWS: Row ke andar bhi condition check karein
+        tableHtml += `
+            <tr class="data-row">
+                <td><b>${data.month}</b></td>
+                <td class="v-comp" data-val="${compositeFee}">${compositeFee.toFixed(2)}</td>
+                <td class="v-trans" data-val="${transportFee}">${transportFee.toFixed(2)}</td>
+                ${hasProcessingFee ? `<td class="v-other" data-val="${otherFee}">${otherFee.toFixed(2)}</td>` : ''}
+                <td class="v-late" data-val="${lateFee}">${lateFee.toFixed(2)}</td>
+                <td class="v-total-fees" data-val="${totalFees}"><b>${totalFees.toFixed(2)}</b></td>
+				 ${hasProcessingFee ? `<td class="v-proc-conces" data-val="${procConcession}">${procConcession.toFixed(2)}</td>` : ''}
+				 
+                <td class="v-comp-conces" data-val="${compConcession}">${compConcession.toFixed(2)}</td>
+                <td class="v-trans-conces" data-val="${transConcession}">${transConcession.toFixed(2)}</td>
+				
+                <td class="v-payable" data-val="${payableAmount}"><b>${payableAmount.toFixed(2)}</b></td>
+                <td>${data.date}</td>
+                <td><span class="receipt-badge">${receiptNo}</span></td>
+                <td class="v-paid" data-val="${paidAmount}">${paidAmount.toFixed(2)}</td>
+                <td class="v-balance" data-val="${balanceAmount}">${balanceAmount.toFixed(2)}</td>
+                <td>${paymentMode} ${remark}</td>
+            </tr>`;
+    }
+
+    // 4. DYNAMIC FOOTER: Footer total me bhi column layout adjust karein
+    tableHtml += `
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td>Grand Total</td>
+                    <td id="totComp">0.00</td>
+                    <td id="totTrans">0.00</td>
+                    ${hasProcessingFee ? `<td id="totOther">0.00</td>` : ''}
+                    <td id="totLate">0.00</td>
+                    <td id="totFees">0.00</td>
+					 ${hasProcessingFee ? `<td id="totProcConces">0.00</td>` : ''}
+                    <td id="totCompConces">0.00</td>
+                    <td id="totTransConces">0.00</td>
+                    <td id="totPayable">0.00</td>
+                    <td>-</td>
+                      <td>-</td>
+                    <td id="totPaid">0.00</td>
+                    <td id="totBalance">0.00</td>
+                    <td>-</td>
+                </tr>
+            </tfoot>
+        </table>`;
+
+    document.getElementById("tableContainer").innerHTML = tableHtml;
+
+    document.getElementById("dashboardSection").style.display = "flex";
+    document.getElementById("searchWrapper").style.display = "block";
+
+    calculateLiveTotals();
+}
+
+
+   
+    // Live Searching & Row Filtering Feature
+    function filterTableAndRecalculate() {
+        let input = document.getElementById("tableSearchInput");
+        let filter = input.value.toLowerCase();
+        let table = document.getElementById("reportTable");
+        let rows = table.getElementsByClassName("data-row");
+
+        for (let i = 0; i < rows.length; i++) {
+            let rowText = rows[i].textContent || rows[i].innerText;
+            if (rowText.toLowerCase().indexOf(filter) > -1) {
+                rows[i].style.display = ""; 
+            } else {
+                rows[i].style.display = "none"; 
+            }
+        }
+        calculateLiveTotals(); // Real-time calculation callback
+    }
+function calculateLiveTotals() {
+    let table = document.getElementById("reportTable");
+    if (!table) return;
+
+    let rows = table.getElementsByClassName("data-row");
+    
+    // Sabhi calculations ke variables initialize karein
+    let sumComp = 0, sumTrans = 0, sumOther = 0, sumLate = 0;
+    let sumFees = 0, sumProcConces = 0,sumCompConces = 0, sumTransConces = 0;
+    let sumPayable = 0, sumPaid = 0, sumBalance = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+        // Sirf un rows ka total lagayein jo search ya filter me visible hain
+        if (rows[i].style.display !== "none") {
+            sumComp += parseFloat(rows[i].querySelector(".v-comp")?.getAttribute("data-val")) || 0;
+            sumTrans += parseFloat(rows[i].querySelector(".v-trans")?.getAttribute("data-val")) || 0;
+            sumLate += parseFloat(rows[i].querySelector(".v-late")?.getAttribute("data-val")) || 0;
+            sumFees += parseFloat(rows[i].querySelector(".v-total-fees")?.getAttribute("data-val")) || 0;
+			
+            sumCompConces += parseFloat(rows[i].querySelector(".v-comp-conces")?.getAttribute("data-val")) || 0;
+            sumTransConces += parseFloat(rows[i].querySelector(".v-trans-conces")?.getAttribute("data-val")) || 0;
+            sumPayable += parseFloat(rows[i].querySelector(".v-payable")?.getAttribute("data-val")) || 0;
+            sumPaid += parseFloat(rows[i].querySelector(".v-paid")?.getAttribute("data-val")) || 0;
+            sumBalance += parseFloat(rows[i].querySelector(".v-balance")?.getAttribute("data-val")) || 0;
+
+            // DYNAMIC CHECK: Agar Other fees column maujood hai tabhi value extract karein
+            let otherEl = rows[i].querySelector(".v-other");
+            if (otherEl) {
+                sumOther += parseFloat(otherEl.getAttribute("data-val")) || 0;
+            }
+			let procConcesEl = rows[i].querySelector(".v-proc-conces");
+            if (procConcesEl) {
+                sumProcConces += parseFloat(procConcesEl.getAttribute("data-val")) || 0;
+				
+            }
+        }
+    }
+
+    // 1. Table Footer Cells Update (Safe Update using Element check)
+    if (document.getElementById("totComp")) document.getElementById("totComp").innerText = sumComp.toFixed(2);
+    if (document.getElementById("totTrans")) document.getElementById("totTrans").innerText = sumTrans.toFixed(2);
+    if (document.getElementById("totLate")) document.getElementById("totLate").innerText = sumLate.toFixed(2);
+    if (document.getElementById("totFees")) document.getElementById("totFees").innerText = sumFees.toFixed(2);
+    if (document.getElementById("totCompConces")) document.getElementById("totCompConces").innerText = sumCompConces.toFixed(2);
+    if (document.getElementById("totTransConces")) document.getElementById("totTransConces").innerText = sumTransConces.toFixed(2);
+    if (document.getElementById("totPayable")) document.getElementById("totPayable").innerText = sumPayable.toFixed(2);
+    if (document.getElementById("totPaid")) document.getElementById("totPaid").innerText = sumPaid.toFixed(2);
+    if (document.getElementById("totBalance")) document.getElementById("totBalance").innerText = sumBalance.toFixed(2);
+    
+    // Other Fees footer cell dynamic check
+    let totOtherEl = document.getElementById("totOther");
+    if (totOtherEl) totOtherEl.innerText = sumOther.toFixed(2);
+	let totprocEl = document.getElementById("totProcConces");
+    if (totprocEl) {totprocEl.innerText = sumProcConces.toFixed(2)
+     
+     concession = sumCompConces + sumTransConces + sumProcConces ;}
+	 else{concession = sumCompConces + sumTransConces ;}
+    // 2. Top Summary Widgets Sync (Safe Update - agar screen par boxes bane ho)
+    if (document.getElementById("boxComp")) document.getElementById("boxComp").innerText = sumComp.toFixed(2);
+    if (document.getElementById("boxTrans")) document.getElementById("boxTrans").innerText = sumTrans.toFixed(2);
+    if (document.getElementById("boxlatefee")) document.getElementById("boxlatefee").innerText = sumLate.toFixed(2);
+    if (document.getElementById("boxGrand")) document.getElementById("boxGrand").innerText = sumFees.toFixed(2);
+    if (document.getElementById("boxCompConces")) document.getElementById("boxCompConces").innerText = sumCompConces.toFixed(2);
+    if (document.getElementById("boxTransConces")) document.getElementById("boxTransConces").innerText = sumTransConces.toFixed(2);
+	if (document.getElementById("boxConces")) document.getElementById("boxConces").innerText = concession.toFixed(2);
+    if (document.getElementById("boxPayable")) document.getElementById("boxPayable").innerText = sumPayable.toFixed(2);
+    if (document.getElementById("boxpaid")) document.getElementById("boxpaid").innerText = sumPaid.toFixed(2);
+    if (document.getElementById("boxdue")) document.getElementById("boxdue").innerText = sumBalance.toFixed(2);
+    
+    if (document.getElementById("boxOther")) document.getElementById("boxOther").innerText = sumOther.toFixed(2);
+}
+
+    // Calculator Engine for Table and Summary Widgets
+    function calculLiveTotals() {
+        let table = document.getElementById("reportTable");
+        if (!table) return;
+
+        let rows = table.getElementsByClassName("data-row");
+        let sumProc = 0, sumComp = 0, sumTrans = 0, sumGrand = 0 ,sumConces = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].style.display !== "none") {
+                sumProc += parseFloat(rows[i].querySelector(".v-proc").getAttribute("data-val")) || 0;
+                sumComp += parseFloat(rows[i].querySelector(".v-comp").getAttribute("data-val")) || 0;
+                sumTrans += parseFloat(rows[i].querySelector(".v-trans").getAttribute("data-val")) || 0;
+				sumConces += parseFloat(rows[i].querySelector(".v-conces").getAttribute("data-val")) || 0;
+                sumGrand += parseFloat(rows[i].querySelector(".v-total").getAttribute("data-val")) || 0;
+            }
+        }
+
+        let formattedProc = "" + sumProc.toFixed(2);
+        let formattedComp = "" + sumComp.toFixed(2);
+        let formattedTrans = "" + sumTrans.toFixed(2);
+		 let formattedConces = "" + sumConces.toFixed(2);
+        let formattedGrand = "" + sumGrand.toFixed(2);
+
+        // Footer Cells Sync
+        document.getElementById("totProc").innerText = formattedProc;
+        document.getElementById("totComp").innerText = formattedComp;
+        document.getElementById("totTrans").innerText = formattedTrans;
+		document.getElementById("totConces").innerText = formattedConces;
+        document.getElementById("totGrand").innerText = formattedGrand;
+
+        // Top Summary Widgets Sync
+        document.getElementById("boxlatefee").innerText = formattedProc;
+        document.getElementById("boxconces").innerText = formattedComp;
+        document.getElementById("boxpaid").innerText = formattedTrans;
+		document.getElementById("boxdue").innerText = formattedConces;
+        document.getElementById("boxGrand").innerText = formattedGrand;
+    }
+  // Global variable outputs declaration
+    let schoolData = null;
+    let receiptData = null;
+
+
+// --- FEATURE 1: Text Parser with Strict 10-Value Extractions ---
+    function parseRawTextData() {
+        let text = document.getElementById("rawTextInput").value;
+        if (!text.trim()) {
+            alert("Kripya raw text data paste karein!");
+            return;
+        }
+
+        // Student Info parsing (Same as before pattern match)
+        let studentName = (text.match(/Student Name\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+			let admissionNo = (text.match(/Admission No\.?\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+			let className   = (text.match(/Class\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+			let fatherName  = (text.match(/Father Name\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+			let fatherContact = (text.match(/Father Contact\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+
+        let student_info = {
+            "student_name": studentName,
+            "admission_no": admissionNo,
+            "class": className,
+            "father_name": fatherName,
+            "father_contact": fatherContact
+        };
+
+        let lines = text.split("\n");
+let fee_records = [];
+
+// FIX 1: Shuru se '^' hata diya taaki line ke beech mein bhi match kare
+// Aap spelling bhi verify kar lein (PROCESSING vs PROCEESING)
+let targetHeadsRegex = /(PROCESSING FEES|Monthly Composite Fees|TRANSPORT CHARGE)/i;
+
+lines.forEach(line => {
+    line = line.trim();
+    if (!line) return;
+
+    // Check if row contains one of our core fee heads
+    if (targetHeadsRegex.test(line)) {
+        
+        // Head text ko sahi se extract karna
+        let match = line.match(targetHeadsRegex);
+        let headMatched = match[0];
+        
+        // FIX 2: Head jahan match hua hai, uske BAAD ka saara text nikalna
+        let headIndex = line.indexOf(headMatched);
+        let remainingText = line.substring(headIndex + headMatched.length).trim();
+
+        // Safe split logic for spaces and tabs
+        let valuesArray = remainingText.split('\t').map(v => v.trim());
+
+        fee_records.push({
+            "fee_head": headMatched,
+            "month": valuesArray[0] || "",        
+            "payable_amount": valuesArray[1] || "",   
+            "concession": valuesArray[2] || "",       
+            "value_4": valuesArray[3] || "",       
+            "due_date": valuesArray[4] || "",   
+			 
+            "paid_amount": valuesArray[5] || "",       
+            "value_7": valuesArray[6] || "",       
+            "value_8": valuesArray[7] || "",       
+            "value_9": valuesArray[8] || "",       
+            "paid_date": valuesArray[9] || "",
+            "balance": valuesArray[10] || "",   
+	        "late_fee": valuesArray[11] || ""			
+        });
+		
+    }
+});
+
+
+		
+
+        schoolData = {
+            "student_info": student_info,
+            "fee_records": fee_records
+        };
+		schoolData.fee_records.forEach(record => {
+// ==========================================
+// LATE FEE CALCULATION WITH SESSION CUT-OFF
+// ==========================================
+if (record.due_date) {
+    const [d1, m1, y1] = record.due_date.split("-").map(Number);
+    const dueDate = new Date(y1, m1 - 1, d1);
+    let targetEndDate;
+
+    // Check karein agar paid_date missing hai, zero hai ya string "0.00" hai
+    let isNotPaid = !record.paid_date || record.paid_date === "0" || record.paid_date === "0.00" || record.paid_date.trim() === "";
+
+    if (isNotPaid) {
+        // Agar payment nahi hui hai, toh aaj ki tarikh tak late fee lagegi
+        targetEndDate = new Date(); // Today's Date
+    } else {
+        // Agar paid_date valid hai toh use parse karein
+        const [d2, m2, y2] = record.paid_date.split("-").map(Number);
+        targetEndDate = new Date(y2, m2 - 1, d2);
+    }
+
+    let totalLateDays = 0;
+
+    // Agar targetEndDate due_date ke baad ki hai tabhi late fee lagegi
+    if (targetEndDate > dueDate) {
+        
+        // Loop chalane ke liye current start point set karein
+        let currentStart = new Date(dueDate);
+        
+        while (currentStart < targetEndDate) {
+            let curD = currentStart.getDate();
+            let curM = currentStart.getMonth(); // 0-indexed (Jan=0, Feb=1...)
+            let curY = currentStart.getFullYear();
+
+            // April (month idx 3) ya uske baad se naya session shuru hota hai
+            let sessionEndYear = (curM >= 3) ? curY + 1 : curY; 
+            const sessionEndDate = new Date(sessionEndYear, 2, 31); // 31 March Cut-off
+
+            // Jo pehle aaye: actual targetEndDate ya iss session ka 31 March
+            let cycleEnd = (targetEndDate < sessionEndDate) ? targetEndDate : sessionEndDate;
+
+            // Is phase/session ke late days ko add karna
+            if (cycleEnd > currentStart) {
+                const diffTime = cycleEnd - currentStart;
+                totalLateDays += Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            }
+
+            // Agle session par jump karna (31 March ke baad seedhe agle saal ki same due date par)
+            // Isse beech ka gap (April se June ka) automatic skip/minus ho jayega
+            if (cycleEnd === sessionEndDate) {
+                currentStart = new Date(curY + 1, curM, curD);
+            } else {
+                // Agar targetEndDate pehle aa gayi toh loop se bahar nikalna
+                break;
+            }
+        }
+    }
+
+    // ₹3 per day multiply configuration
+    record.late_fee = (totalLateDays * 3).toFixed(2);
+
+} else {
+    record.late_fee = "0.00";
+}
+document.getElementById("uploadStats").style.display = "inline-block";
+});
+
+        document.getElementById("schoolDataOutput").innerText = JSON.stringify(schoolData, null, 2);
+    }
+
+   document.getElementById('excelFileInput').addEventListener('change', function(e) {
+
+    let files = Array.from(e.target.files);
+
+    if (!files.length) {
+        return;
+    }
+
+    let parsedReceipts = [];
+    let filesProcessed = 0;
+
+    // ==========================================
+    // HAR EXCEL FILE KO PROCESS KARNA
+    // ==========================================
+
+    files.forEach(file => {
+
+        let reader = new FileReader();
+
+        reader.onload = function(e) {
+
+            try {
+
+                let data = new Uint8Array(e.target.result);
+
+                // Excel workbook load
+                let workbook = XLSX.read(data, { type: 'array' });
+
+                // ==========================================
+                // IMPORTANT:
+                // Har Excel ki FIRST SHEET read hogi
+                // ==========================================
+
+                let firstSheetName = workbook.SheetNames[0];
+                let worksheet = workbook.Sheets[firstSheetName];
+
+                let sheetDataMatrix = XLSX.utils.sheet_to_json(
+                    worksheet,
+                    { header: 1 }
+                );
+
+                // ==========================================
+                // ROW 8 SE DATA READ
+                // ==========================================
+
+                for (let i = 7; i < sheetDataMatrix.length; i++) {
+
+                    let row = sheetDataMatrix[i];
+
+                    if (!row || row.length === 0) {
+                        continue;
+                    }
+
+                    // Column B = Index 1
+                    let receiptNo = row[1]
+                        ? String(row[1]).trim()
+                        : "";
+
+                    // Column C = Index 2
+                    let admissionNo = row[2]
+                        ? String(row[2]).trim()
+                        : "";
+
+                    // Column G = Index 6
+                    let paymentMode = row[6]
+                        ? String(row[6]).trim()
+                        : "";
+
+                    // Column I = Index 9
+                    let amount = row[9]
+                        ? String(row[9]).trim()
+                        : "";
+
+                    // Column L = Index 11
+                    let feeDepositDate = row[11]
+                        ? String(row[11]).trim()
+                        : "";
+
+                    // Blank row skip
+                    if (!receiptNo && !admissionNo) {
+                        continue;
+                    }
+
+                    parsedReceipts.push({
+                        "receipt_no": receiptNo,
+                        "admission_no": admissionNo,
+                        "amount": amount,
+                        "payment_mode": paymentMode,
+                        "deposite_date": feeDepositDate
+                    });
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Excel processing error:",
+                    file.name,
+                    error
+                );
+
+                alert(
+                    "Excel file process nahi ho payi:\n" +
+                    file.name
+                );
+            }
+
+            // ==========================================
+            // FILE PROCESSING COUNT
+            // ==========================================
+
+            filesProcessed++;
+
+            // Sabhi files complete hone ke baad grouping
+            if (filesProcessed === files.length) {
+
+                // ==========================================
+                // GROUP BY:
+                // ADMISSION NO + DEPOSIT DATE
+                // ==========================================
+
+                let groupedReceipts = {};
+
+                parsedReceipts.forEach(receipt => {
+
+                    let admissionNo = receipt.admission_no;
+                    let depositDate = receipt.deposite_date;
+
+                    let groupKey =
+                        admissionNo + "||" + depositDate;
+
+                    if (!groupedReceipts[groupKey]) {
+
+                        groupedReceipts[groupKey] = {
+                            "receipt_no": [],
+                            "admission_no": admissionNo,
+                            "amount": 0,
+                            "payment_mode": [],
+                            "deposite_date": depositDate
+                        };
+                    }
+
+                    // Receipt number
+                    if (receipt.receipt_no) {
+
+                        groupedReceipts[groupKey]
+                            .receipt_no
+                            .push(receipt.receipt_no);
+                    }
+
+                    // Amount
+                    let amount = parseFloat(
+                        String(receipt.amount)
+                            .replace(/,/g, "")
+                            .replace(/[₹$]/g, "")
+                            .trim()
+                    ) || 0;
+
+                    groupedReceipts[groupKey].amount += amount;
+
+                    // Payment mode
+                    if (
+                        receipt.payment_mode &&
+                        !groupedReceipts[groupKey]
+                            .payment_mode
+                            .includes(receipt.payment_mode)
+                    ) {
+
+                        groupedReceipts[groupKey]
+                            .payment_mode
+                            .push(receipt.payment_mode);
+                    }
+                });
+
+
+                // ==========================================
+                // FINAL RECEIPT DATA
+                // ==========================================
+
+                receiptData = Object.values(groupedReceipts)
+                    .map(receipt => ({
+
+                        "receipt_no":
+                            receipt.receipt_no.join(","),
+
+                        "admission_no":
+                            receipt.admission_no,
+
+                        "amount":
+                            receipt.amount.toFixed(2),
+
+                        "payment_mode":
+                            receipt.payment_mode.join(","),
+
+                        "deposite_date":
+                            receipt.deposite_date
+                    }));
+
+
+                // ==========================================
+                // OUTPUT
+                // ==========================================
+
+                document.getElementById(
+                    "receiptDataOutput"
+                ).innerText =
+                    JSON.stringify(
+                        receiptData,
+                        null,
+                        2
+                    );
+
+                document.getElementById(
+                    "uploadStatus"
+                ).style.display = "inline-block";
+
+
+                // Optional status
+                console.log(
+                    "Total Excel Files:",
+                    files.length
+                );
+
+                console.log(
+                    "Total Raw Receipts:",
+                    parsedReceipts.length
+                );
+
+                console.log(
+                    "Total Grouped Records:",
+                    receiptData.length
+                );
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+});
+
+</script>
+</body>
+</html>

@@ -1485,6 +1485,220 @@ renderFeeReportUI(
 );
          
 }
+
+
+function parseBasahiSchoolData() {
+        let text = document.getElementById("rawInput").value;
+        
+        // Student Info parsing (Same as before pattern match)
+        let studentName = (text.match(/Student Name\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+	      		let admissionNo = (text.match(/Admission No\.?\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+      			let className   = (text.match(/Class\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+	      		let fatherName  = (text.match(/Father Name\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+      			let fatherContact = (text.match(/Father Contact\s*:\s*(.*?)(?=\s{2,}|\t|\n|$)/i) || ["", "N/A"])[1].trim();
+
+        let student_info = {
+            "student_name": studentName,
+            "admission_no": admissionNo,
+            "class": className,
+            "father_name": fatherName,
+            "father_contact": fatherContact
+        };
+        let lines = text.split('\n');
+
+// Keep targets in UPPERCASE for reliable matching
+const targetHeads = ["MONTHLY COMPOSITE FEE (I-XII)", "TRANSPORT FEES", "PROCESSING FEES(I-XII)"];
+
+let feeRecords = []; // Fixed typo from feeRecrds/feeRecords
+let receiptsList = [];
+
+// --- STEP 1: PARSE ALL LINES SAFELY ---
+lines.forEach(line => {
+    if (!line.trim()) return;
+
+    // Convert the entire line to uppercase once for matching
+    let upperLine = line.toUpperCase();
+    
+    // Find the matching head using uppercase comparison
+    let matchedHead = targetHeads.find(head => upperLine.includes(head));
+    
+    if (matchedHead) {
+        let parts = line.split('\t').map(p => p.trim());
+        
+        // Find index by comparing upper-case strings
+        let headIndex = parts.findIndex(p => targetHeads.includes(p.toUpperCase()));
+        
+        if (headIndex !== -1) {
+            feeRecords.push({
+                feeHead: parts[headIndex], // Keeps the original case from text
+                period: parts[headIndex + 1] || "",
+                payableAmount: parts[headIndex + 2] || "",
+                concessionAmount: parts[headIndex + 3] || "",
+                waiverAmount: parts[headIndex + 4] || "",
+                dueDate: parts[headIndex + 5] || "",
+                paidAmount: parts[headIndex + 6] || "",
+                excessAmount: parts[headIndex + 7] || "",
+                adjustedAmount: parts[headIndex + 8] || "",
+                refundAmount: parts[headIndex + 9] || "",
+                paidDate: (parts[headIndex + 10] || "").trim(),
+                balanceAmount: parts[headIndex + 11] || "",
+                receiptNo: "N/A",
+                lateFine: "",
+                paymentMode: "N/A"
+            });
+        }
+    }
+
+
+                
+    
+
+            // Receipt detail processing with tab separation to handle spaces/empty fields
+            if (line.startsWith("N-") || (line.includes("-24-") || line.includes("-25-") || line.includes("-26-")) && line.includes("Print")) {
+                let rParts = line.split('\t').map(p => p.trim());
+                if(rParts.length >= 3) {
+                    receiptsList.push({
+                        receiptNo: rParts[0] || "",
+                        receiptDate: (rParts[1] || "").trim(),
+                        amount: rParts[2] || "",
+                        lateFine: rParts[4] || "", // Khali column index track standard formatting ke hisab se
+                        paymentMode: rParts[8] || "Cash" // Mode auto detection column se
+                    });
+                }
+            }
+        });
+
+        // --- STEP 2: MULTI-RECORD MATCHING & LAST MATCH FINE DISTRIBUTION ---
+                // --- STEP 2: MULTI-RECORD MATCHING (COMMA-SEPARATED FOR MULTIPLE RECEIPTS) ---
+        receiptsList.forEach(receipt => {
+            if(!receipt.receiptDate) return;
+
+            // Target date se match karne wale saare fee records nikalien
+            let matchingRecords = feeRecords.filter(record => record.paidDate === receipt.receiptDate);
+            
+            if (matchingRecords.length > 0) {
+                matchingRecords.forEach(record => {
+                    // Agar receiptNo pehle se 'N/A' hai, toh naye receipt se replace karein
+                    if (record.receiptNo === "N/A" || record.receiptNo === "") {
+                        record.receiptNo = receipt.receiptNo;
+                    } else {
+                        // Agar pehle se koi receipt no. maujood hai, aur naya wala alag hai, toh comma lagakar jodein
+                        let existingReceipts = record.receiptNo.split(',').map(r => r.trim());
+                        if (!existingReceipts.includes(receipt.receiptNo)) {
+                            record.receiptNo += ", " + receipt.receiptNo;
+                        }
+                    }
+
+                    // Aise hi Payment Mode ke sath bhi comma lagakar unique modes ko jodein
+                    if (record.paymentMode === "N/A" || record.paymentMode === "") {
+                        record.paymentMode = receipt.paymentMode;
+                    } else {
+                        let existingModes = record.paymentMode.split(',').map(m => m.trim());
+                        if (!existingModes.includes(receipt.paymentMode)) {
+                            record.paymentMode += ", " + receipt.paymentMode;
+                        }
+                    }
+                });
+
+                // Late Fine ko safely har receipt ke liye jodna (agar multiple receipts me fine hai)
+                let lastRecord = matchingRecords[matchingRecords.length - 1];
+                if(receipt.lateFine && receipt.lateFine !== "0.00" && receipt.lateFine !== "0") {
+                    if(!lastRecord.originalLateFineSum) {
+                        lastRecord.originalLateFineSum = 0;
+                    }
+                    lastRecord.originalLateFineSum += parseFloat(receipt.lateFine);
+                    lastRecord.lateFine = lastRecord.originalLateFineSum.toFixed(2);
+                }
+            }
+        });
+
+                  // --- STEP 2.5: UNPAID RECORDS KE LIYE DYNAMIC LATE FINE LOGIC ---
+        feeRecords.forEach(r => {
+            let currentFeeHead = r.feeHead ? r.feeHead.trim().toUpperCase() : "";
+
+    // 1. Filter: Agar Transport Charge ya Processing Fees hai toh late fine hamesha zero rahega
+    if (currentFeeHead === "TRANSPORT FEES" || currentFeeHead === "PROCESSING FEES" || currentFeeHead === "PROCESSING FEE") {
+        r.lateFine = "0.00";
+        return; // Is record ke liye baaki ki saari calculation skip ho jayegi
+    }
+            // Check karein agar paidDate missing hai, zero hai ya khali hai (Sirf Unpaid ke liye)
+            let isNotPaid = !r.paidDate || r.paidDate === "0" || r.paidDate === "0.00" || r.paidDate.trim() === "" || r.paidDate === "-";
+
+            if (isNotPaid) {
+                if (r.dueDate && r.dueDate !== "-") {
+                    const [d1, m1, y1] = r.dueDate.split("-").map(Number);
+                    const dueDate = new Date(y1, m1 - 1, d1);
+                    
+                    // Unpaid hai toh aaj ki tarikh (Today's Date) tak late fee lagegi
+                    let targetEndDate = new Date(); 
+                    let totalLateDays = 0;
+
+                    if (targetEndDate > dueDate) {
+                        let currentStart = new Date(dueDate);
+                        
+                        while (currentStart < targetEndDate) {
+                            let curD = currentStart.getDate();
+                            let curM = currentStart.getMonth(); 
+                            let curY = currentStart.getFullYear();
+
+                            let sessionEndYear = (curM >= 3) ? curY + 1 : curY; 
+                            const sessionEndDate = new Date(sessionEndYear, 2, 31); 
+
+                            let cycleEnd = (targetEndDate < sessionEndDate) ? targetEndDate : sessionEndDate;
+
+                            if (cycleEnd > currentStart) {
+                                const diffTime = cycleEnd - currentStart;
+                                totalLateDays += Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                            }
+
+                            if (cycleEnd === sessionEndDate) {
+                                currentStart = new Date(curY + 1, curM, curD);
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                    // ₹3 per day multiply configuration
+                    r.lateFine = (totalLateDays * 3).toFixed(2);
+                } else {
+                    r.lateFine = "0.00";
+                }
+            }
+            // Agar paid hai, toh purani receipt matching wala late fine lag chuka hai, use touch nahi karenge
+        });
+            schoolData = {
+            "student_info": student_info,
+            "fee_records": feeRecords,
+            "receipt_list":receiptsList
+        };
+        // --- STEP 3: OUTPUT STRUCTURING ---
+     document.getElementById("jsonOutput").textContent = JSON.stringify(schoolData, null, 2);
+
+        let tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+
+        feeRecords.forEach(r => {
+            let row = `<tr>
+                <td><b>${r.feeHead}</b></td>
+                <td>${r.period || '-'}</td>
+                <td>${r.payableAmount ? '₹'+r.payableAmount : '-'}</td>
+                <td>${r.concessionAmount ? '₹'+r.concessionAmount : '-'}</td>
+                <td>${r.waiverAmount ? '₹'+r.waiverAmount : '-'}</td>
+                <td>${r.dueDate || '-'}</td>
+                <td style="color:green; font-weight:bold;">${r.paidAmount ? '₹'+r.paidAmount : '-'}</td>
+                <td>${r.paidDate || '-'}</td>
+                <td style="${parseFloat(r.balanceAmount) > 0 ? 'color:red; font-weight:bold;' : ''}">${r.balanceAmount ? '₹'+r.balanceAmount : '-'}</td>
+                <td><mark>${r.receiptNo}</mark></td>
+                <td style="color:#e67e22; font-weight:bold;">${r.lateFine ? '₹'+r.lateFine : '-'}</td>
+                <td><i>${r.paymentMode}</i></td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+   
+
+
+	
 function processSchoolData(data) {
 
     if (!data || !data.fee_records || !data.student_info) {

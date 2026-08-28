@@ -1413,6 +1413,13 @@ function deleteAtColumn() {
 
                   // --- STEP 2.5: UNPAID RECORDS KE LIYE DYNAMIC LATE FINE LOGIC ---
         feeRecords.forEach(r => {
+			let currentFeeHead = r.feeHead ? r.feeHead.trim().toUpperCase() : "";
+
+    // 1. Filter: Agar Transport Charge ya Processing Fees hai toh late fine hamesha zero rahega
+    if (currentFeeHead === "TRANSPORT CHARGE" || currentFeeHead === "PROCESSING FEES" || currentFeeHead === "PROCESSING FEE") {
+        r.lateFine = "0.00";
+        return; // Is record ke liye baaki ki saari calculation skip ho jayegi
+    }
             // Check karein agar paidDate missing hai, zero hai ya khali hai (Sirf Unpaid ke liye)
             let isNotPaid = !r.paidDate || r.paidDate === "0" || r.paidDate === "0.00" || r.paidDate.trim() === "" || r.paidDate === "-";
 

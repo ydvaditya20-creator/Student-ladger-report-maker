@@ -798,9 +798,9 @@
     ----------------------------------------------------- */
     .summary-box {
         display: grid !important;
-        /* Grid layout printed page ke standard width par fail jayega */
-        grid-template-columns: repeat(4, 1fr) !important; 
-        gap: 10px !important;
+        /* 4 ko badalkar 5 kiya taaki saare ek line mein aayein */
+        grid-template-columns: repeat(5, 1fr) !important; 
+        gap: 8px !important; /* Gap thoda kam kiya taaki page par tight fit ho sake */
         margin-bottom: 15px !important;
         width: 100% !important;
     }
@@ -808,9 +808,9 @@
     .summary-card {
         background: transparent !important; /* Ink save karne ke liye grey/blue hataya */
         border: 1px solid #cbd5e1 !important; /* Light clean border charo taraf */
-        border-left: 4px solid #000000 !important; /* Deep black solid left border accent */
+        border-left: 4px solid blue !important; /* Deep black solid left border accent */
         border-radius: 4px !important;
-        padding: 8px 10px !important;
+        padding: 3px 5px !important;
         text-align: left !important;
         box-shadow: none !important; /* Print mein shadow gandi lagti hai, hata di */
         transform: none !important;
@@ -819,7 +819,7 @@
 
     /* Summary Card Labels */
     .summary-card h3 {
-        margin: 0 0 4px 0 !important;
+        margin: 0 0 0px 0 !important;
         font-size: 9px !important;
         font-weight: 600 !important;
         color: #475569 !important; /* Subtle dark slate */

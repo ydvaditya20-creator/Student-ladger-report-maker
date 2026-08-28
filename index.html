@@ -1671,6 +1671,21 @@ lines.forEach(line => {
             "fee_records": feeRecords,
             "receipt_list":receiptsList
         };
+
+	document.getElementById("jsonOutput").textContent = JSON.stringify(schoolData, null, 2);
+const calculatedReportData =
+    processSchoolData(schoolData);
+
+console.log(
+    "Final Report Data:",
+    calculatedReportData
+);
+
+renderFeeReportUI(
+    calculatedReportData,
+    containerId
+);
+
         // --- STEP 3: OUTPUT STRUCTURING ---
      document.getElementById("jsonOutput").textContent = JSON.stringify(schoolData, null, 2);
 

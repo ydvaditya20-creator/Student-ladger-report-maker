@@ -379,33 +379,37 @@
     border: 1px solid #e2e8f0;
     border-left: 4px solid #2563eb;
     border-radius: 6px;
-    padding: 10px;
-    text-align: center;
+    padding: 12px 14px;            /* Symmetrical padding dashboard look ke liye */
+    text-align: left;              /* Left-align dashboard cards mein zyadatar standard hota hai */
     box-sizing: border-box;
     overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease; /* Smooth hover effect */
 }
 
-
+/* Hover effects text ko bina disturb kiye clean interactive feel dene ke liye */
+.summary-card:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+}
 
 .summary-card h3 {
-    margin: 0 0 5px;
-
+    margin: 0 0 6px 0;
     font-size: 11px;
-
-    line-height: 1.25;
-
+    font-weight: 600;              /* Heading thodi bold hone se clean lagti hai */
+    color: #64748b;                /* Slate grey color jisse card muted aur premium lage */
+    text-transform: uppercase;     /* Small fonts uppercase mein zyada clean dikhte hain */
+    letter-spacing: 0.05em;        /* Readable uppercase spacing */
+    line-height: 1.4;
     word-break: break-word;
 }
 
-
 .summary-card p {
     margin: 0;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
+    font-size: 18px;               /* Numbers/Data thode bade hone chahiye taaki turant dikhein */
+    font-weight: 700;              /* Pure professional bold appearance */
+    color: #0f172a;                /* Deep dark text numbers ko stand out karne ke liye */
     white-space: nowrap;
+    letter-spacing: -0.02em;       /* Premium numerical styling */
 }
 
 

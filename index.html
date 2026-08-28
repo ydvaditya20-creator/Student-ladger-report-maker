@@ -356,7 +356,34 @@
 /* =========================================================
    SUMMARY
 ========================================================= */
+.student-header {
+        margin-bottom: 12px !important;
+        padding: 10px 14px !important;
+        border: 2px !important;
+        border-bottom: 2px solid #000000 !important;
+		    border-left: 4px solid blue !important;    /* Elegant black dividing line */
+        background: transparent !important;
+        page-break-inside: avoid !important;
+    }
 
+    .student-header h3 {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #000000 !important;
+        text-transform: uppercase !important;
+        margin: 0 0 8px 0 !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    /* Grid elements ko properly structured rows mein change kiya */
+    .student-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8px 12px !important; /* Perfect clear spacing */
+        font-size: 10px !important; /* Print ke liye perfect readable size */
+        color: #111111 !important;
+        line-height: 1.4 !important;
+    }
 .summary-box {
     width: 100%;
 
@@ -763,19 +790,20 @@
     /* -----------------------------------------------------
    ONLY FOR PRINTING (Ctrl + P)
 ----------------------------------------------------- */
-@media print {
+
     /* 1. Student Information Header - Premium Clean Layout */
     .student-header {
         margin-bottom: 12px !important;
         padding: 10px 14px !important;
-        border: none !important;
-        border-bottom: 2px solid #000000 !important; /* Elegant black dividing line */
+        border: 2px !important;
+        border-bottom: 2px solid #000000 !important;
+		    border-left: 4px solid blue !important;    /* Elegant black dividing line */
         background: transparent !important;
         page-break-inside: avoid !important;
     }
 
     .student-header h3 {
-        font-size: 14px !important;
+        font-size: 18px !important;
         font-weight: 700 !important;
         color: #000000 !important;
         text-transform: uppercase !important;

@@ -760,98 +760,80 @@
        STUDENT HEADER
     ----------------------------------------------------- */
 
+    /* -----------------------------------------------------
+   ONLY FOR PRINTING (Ctrl + P)
+----------------------------------------------------- */
+@media print {
+    /* 1. Student Information Header - Premium Clean Layout */
     .student-header {
-
-        margin-bottom: 5px !important;
-
-        padding: 6px !important;
-
-        border: 1px solid #999 !important;
-
+        margin-bottom: 12px !important;
+        padding: 10px 14px !important;
+        border: none !important;
+        border-bottom: 2px solid #000000 !important; /* Elegant black dividing line */
+        background: transparent !important;
         page-break-inside: avoid !important;
     }
 
-
     .student-header h3 {
-
-        font-size: 12px !important;
-
-        margin: 0 0 5px 0 !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #000000 !important;
+        text-transform: uppercase !important;
+        margin: 0 0 8px 0 !important;
+        letter-spacing: 0.5px !important;
     }
 
-
+    /* Grid elements ko properly structured rows mein change kiya */
     .student-grid {
-
         display: grid !important;
-
-        grid-template-columns:
-            repeat(4, 1fr) !important;
-
-        gap: 3px !important;
-
-        font-size: 8px !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8px 12px !important; /* Perfect clear spacing */
+        font-size: 10px !important; /* Print ke liye perfect readable size */
+        color: #111111 !important;
+        line-height: 1.4 !important;
     }
-
 
     /* -----------------------------------------------------
-       SUMMARY PRINT
+       SUMMARY PRINT - Formal Invoice Look
     ----------------------------------------------------- */
+    .summary-box {
+        display: grid !important;
+        /* Grid layout printed page ke standard width par fail jayega */
+        grid-template-columns: repeat(4, 1fr) !important; 
+        gap: 10px !important;
+        margin-bottom: 15px !important;
+        width: 100% !important;
+    }
 
-.summary-box {
-    width: 100%;
+    .summary-card {
+        background: transparent !important; /* Ink save karne ke liye grey/blue hataya */
+        border: 1px solid #cbd5e1 !important; /* Light clean border charo taraf */
+        border-left: 4px solid #000000 !important; /* Deep black solid left border accent */
+        border-radius: 4px !important;
+        padding: 8px 10px !important;
+        text-align: left !important;
+        box-shadow: none !important; /* Print mein shadow gandi lagti hai, hata di */
+        transform: none !important;
+        transition: none !important;
+    }
 
-    display: grid;
+    /* Summary Card Labels */
+    .summary-card h3 {
+        margin: 0 0 4px 0 !important;
+        font-size: 9px !important;
+        font-weight: 600 !important;
+        color: #475569 !important; /* Subtle dark slate */
+        text-transform: uppercase !important;
+        letter-spacing: 0.02em !important;
+    }
 
-    grid-template-columns:
-        repeat(auto-fit, minmax(150px, 1fr));
-
-    gap: 10px;
-
-    margin-bottom: 10px;
-
-    box-sizing: border-box;
-}
-
-
-.summary-card {
-    min-width: 0;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-left: 4px solid #2563eb;
-    border-radius: 6px;
-    padding: 4px 10px;            /* Symmetrical padding dashboard look ke liye */
-    text-align: left;              /* Left-align dashboard cards mein zyadatar standard hota hai */
-    box-sizing: border-box;
-    overflow: hidden;
-    transition: transform 0.2s ease, border-color 0.2s ease; /* Smooth hover effect */
-}
-
-/* Hover effects text ko bina disturb kiye clean interactive feel dene ke liye */
-.summary-card:hover {
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
-}
-
-.summary-card h3 {
-    margin: 0 0 6px 0;
-    font-size: 11px;
-	margin-top: 4px;
-    font-weight: 600;              /* Heading thodi bold hone se clean lagti hai */
-    color: #64748b;                /* Slate grey color jisse card muted aur premium lage */
-    text-transform: uppercase;     /* Small fonts uppercase mein zyada clean dikhte hain */
-    letter-spacing: 0.05em;        /* Readable uppercase spacing */
-    line-height: 1.4;
-    word-break: break-word;
-}
-
-.summary-card p {
-    margin: 0;
-	margin-top: 4px;
-    font-size: 18px;               /* Numbers/Data thode bade hone chahiye taaki turant dikhein */
-    font-weight: 700;              /* Pure professional bold appearance */
-    color: #0f172a;                /* Deep dark text numbers ko stand out karne ke liye */
-    white-space: nowrap;
-    letter-spacing: -0.02em;       /* Premium numerical styling */
+    /* Summary Card Main Values/Amounts */
+    .summary-card p {
+        margin: 0 !important;
+        font-size: 15px !important; /* Print page par numbers crisp dikhenge */
+        font-weight: 700 !important;
+        color: #000000 !important; /* Sharp solid black printing text */
+    }
 }
 
 

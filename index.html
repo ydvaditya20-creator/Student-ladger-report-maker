@@ -619,6 +619,7 @@ info.session.forEach((item, index) => {
 tableBody.innerHTML = "";
 
 let hasProcessingFee = false; // Dynamic check karne ke liye flag
+let showAlertForManualCheck = false; // 👈 1. Naya flag banayein alert ke liye
 
 feeRecords.forEach(r => {
     let month = r.period || 'Other'; 
@@ -654,7 +655,10 @@ feeRecords.forEach(r => {
         m.processingFee += payable;
         m.concessionProcessing += concession;
         if (payable > 0 || concession > 0) hasProcessingFee = true; // Processing fee dynamic trigger
-    } else if (head.includes("composite") || head.includes("tuition")) {
+        if (!r.paidDate || r.paidDate === '-' || r.paidDate.trim() === '') {
+            showAlertForManualCheck = true;
+        }
+	} else if (head.includes("composite") || head.includes("tuition")) {
         m.compositeFee += payable;
         m.concessionComposite += concession;
         m.lateFine += fine; // Late fine on composite fee
@@ -674,7 +678,9 @@ feeRecords.forEach(r => {
     if (r.receiptNo) m.receiptNo = r.receiptNo;
     if (r.paymentMode) m.paymentMode = r.paymentMode;
 });
-
+if (showAlertForManualCheck) {
+    alert("Check Manualy Late fine because of Processing fee exists but Paid Date is missing!");
+}
 // 2. Loop se pehle Total aur Payable amounts final calculate karein
 Object.values(monthlyData).forEach(m => {
     // Total Fees = Processing + Composite + Transport + Late Fine

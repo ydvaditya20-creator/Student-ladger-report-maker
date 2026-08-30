@@ -503,14 +503,25 @@ matches.forEach(match => {
                 });
 
                 // Late Fine ko safely har receipt ke liye jodna (agar multiple receipts me fine hai)
-                let lastRecord = matchingRecords[matchingRecords.length - 1];
-                if(receipt.lateFine && receipt.lateFine !== "0.00" && receipt.lateFine !== "0") {
-                    if(!lastRecord.originalLateFineSum) {
-                        lastRecord.originalLateFineSum = 0;
-                    }
-                    lastRecord.originalLateFineSum += parseFloat(receipt.lateFine);
-                    lastRecord.lateFine = lastRecord.originalLateFineSum.toFixed(2);
-                }
+                // 1. Pehle us specific date wale records mein se sirf 'Monthly Composite Fee' filter karein
+let compositeRecords = matchingRecords.filter(record => 
+    record.feeHead.toUpperCase().includes("MONTHLY COMPOSITE FEE")
+);
+
+// 2. Agar composite fee record mila to uska last record lein, nahi to fallback ke liye normal last record lein
+let targetFineRecord = compositeRecords.length > 0 
+    ? compositeRecords[compositeRecords.length - 1] 
+    : matchingRecords[matchingRecords.length - 1];
+
+// 3. Ab fine sirf sahi record (targetFineRecord) mein hi judega
+if(receipt.lateFine && receipt.lateFine !== "0.00" && receipt.lateFine !== "0") {
+    if(!targetFineRecord.originalLateFineSum) {
+        targetFineRecord.originalLateFineSum = 0;
+    }
+    targetFineRecord.originalLateFineSum += parseFloat(receipt.lateFine);
+    targetFineRecord.lateFine = targetFineRecord.originalLateFineSum.toFixed(2);
+}
+
             }
         });
 

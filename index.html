@@ -619,8 +619,10 @@ info.session.forEach((item, index) => {
 tableBody.innerHTML = "";
 
 let hasProcessingFee = false; // Dynamic check karne ke liye flag
-let showAlertForManualCheck = false; // 👈 1. Naya flag banayein alert ke liye
 
+// 1. Purane saare alert variables hata kar sirf ye naye variables banayein
+let processingPaidDateString = null; // Processing fee ki paid date store karne ke liye
+let hasCompositeFeeAfterProcessingPaid = false; // Check karne ke liye ki baad me composite fee pay hui ya nahi
 feeRecords.forEach(r => {
     let month = r.period || 'Other'; 
 
@@ -654,9 +656,12 @@ feeRecords.forEach(r => {
     if (head.includes("processing")) {
         m.processingFee += payable;
         m.concessionProcessing += concession;
-        if (payable > 0 || concession > 0) hasProcessingFee = true; // Processing fee dynamic trigger
-        if (!r.paidDate || r.paidDate === '-' || r.paidDate.trim() === '') {
-            showAlertForManualCheck = true;
+      if (payable > 0 || concession > 0) hasProcessingFee = true; 
+
+        
+        // 👈 Processing fee ki paid date ko save karein (agar valid date maujood hai)
+        if (r.paidDate && r.paidDate !== '-' && r.paidDate.trim() !== '') {
+            processingPaidDateString = r.paidDate; 
         }
 	} else if (head.includes("composite") || head.includes("tuition")) {
         m.compositeFee += payable;
@@ -678,8 +683,31 @@ feeRecords.forEach(r => {
     if (r.receiptNo) m.receiptNo = r.receiptNo;
     if (r.paymentMode) m.paymentMode = r.paymentMode;
 });
-if (showAlertForManualCheck) {
-    alert("Check Manualy Late fine because of Processing fee exists but Paid Date is missing!");
+if (processingPaidDateString) {
+    // Processing fee ki date ko standard Date object me badlein
+    let processingDateObj = new Date(processingPaidDateString);
+
+    // Pure feeRecords me check karein ki kya koi composite fee is date ke BAAD pay hui hai
+    feeRecords.forEach(r => {
+        let head = (r.feeHead || "").toLowerCase();
+        
+        if (head.includes("composite") || head.includes("tuition")) {
+            // Agar composite fee ki paid date valid hai
+            if (r.paidDate && r.paidDate !== '-' && r.paidDate.trim() !== '') {
+                let compositeDateObj = new Date(r.paidDate);
+                
+                // Check karein ki kya composite fee ki date, processing fee ki date ke BAAD ki hai (ya same day ki hai)
+                if (compositeDateObj >= processingDateObj) {
+                    hasCompositeFeeAfterProcessingPaid = true; 
+                }
+            }
+        }
+    });
+
+    // 👈 3. FINAL ALERT: Agar processing fee pay hone ke baad koi bhi composite fee paid date nahi mili
+    if (!hasCompositeFeeAfterProcessingPaid) {
+        alert("⚠️ Check Manual For Late Fine: Processing fee paid date ke baad koi bhi Monthly Composite Fee ki paid date nahi mili hai!");
+    }
 }
 // 2. Loop se pehle Total aur Payable amounts final calculate karein
 Object.values(monthlyData).forEach(m => {

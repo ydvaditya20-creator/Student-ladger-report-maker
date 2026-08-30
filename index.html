@@ -695,8 +695,20 @@ feeRecords.forEach(r => {
     if (r.paymentMode) m.paymentMode = r.paymentMode;
 });
 if (processingPaidDateString) {
-    // Processing fee ki date ko standard Date object me badlein
-    let processingDateObj = new Date(processingPaidDateString);
+    // 🔽 CUSTOM FUNCTION: DD-MM-YYYY string ko sahi Date Object me badalne ke liye
+    function parseCustomDate(dateStr) {
+        if (!dateStr || dateStr === '-' || dateStr.trim() === '') return null;
+        // Agar date me hiphen (-) hai to split karein (e.g., 15-04-2026)
+        let parts = dateStr.split('-');
+        if (parts.length === 3) {
+            // parts[2] = Year (2026), parts[1] = Month (0-indexed hota hai isliye -1), parts[0] = Day (15)
+            return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+        }
+        return new Date(dateStr); // Fallback agar format alag ho
+    }
+
+    // Processing fee ki date ko sahi se convert karein
+    let processingDateObj = parseCustomDate(processingPaidDateString);
 
     // Pure feeRecords me check karein ki kya koi composite fee is date ke BAAD pay hui hai
     feeRecords.forEach(r => {
@@ -705,21 +717,27 @@ if (processingPaidDateString) {
         if (head.includes("composite") || head.includes("tuition")) {
             // Agar composite fee ki paid date valid hai
             if (r.paidDate && r.paidDate !== '-' && r.paidDate.trim() !== '') {
-                let compositeDateObj = new Date(r.paidDate);
                 
-                // Check karein ki kya composite fee ki date, processing fee ki date ke BAAD ki hai (ya same day ki hai)
-                if (compositeDateObj >= processingDateObj) {
-                    hasCompositeFeeAfterProcessingPaid = true; 
+                // 🔽 Sahi Date conversion yahan bhi lagayein
+                let compositeDateObj = parseCustomDate(r.paidDate);
+                
+                // Dono Dates valid hain tabhi compare karein
+                if (compositeDateObj && processingDateObj) {
+                    // May 26 ki date (03-08-2026) ab April 26 ki date (15-04-2026) se badi mani jayegi (August > April)
+                    if (compositeDateObj >= processingDateObj) {
+                        hasCompositeFeeAfterProcessingPaid = true; 
+                    }
                 }
             }
         }
     });
 
-    // 👈 3. FINAL ALERT: Agar processing fee pay hone ke baad koi bhi composite fee paid date nahi mili
+    // FINAL ALERT: Ab sirf tabhi aayega jab sach me koi baad ki date na mile
     if (!hasCompositeFeeAfterProcessingPaid) {
         alert("⚠️ Check Manual For Late Fine: Processing fee paid date ke baad koi bhi Monthly Composite Fee ki paid date nahi mili hai!");
     }
 }
+
 // 2. Loop se pehle Total aur Payable amounts final calculate karein
 Object.values(monthlyData).forEach(m => {
     // Total Fees = Processing + Composite + Transport + Late Fine

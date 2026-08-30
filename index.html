@@ -456,7 +456,7 @@ matches.forEach(match => {
             }
 
             // Receipt detail processing with tab separation to handle spaces/empty fields
-            if (line.startsWith("N-") || (line.includes("-24-") || line.includes("-25-") || line.includes("-26-")) && line.includes("Print")) {
+            if (line.startsWith("B-") || (line.includes("-24-") || line.includes("-25-") || line.includes("-26-")) && line.includes("Print")) {
                 let rParts = line.split('\t').map(p => p.trim());
                 if(rParts.length >= 3) {
                     receiptsList.push({

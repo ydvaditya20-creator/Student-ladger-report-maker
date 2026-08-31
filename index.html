@@ -614,22 +614,36 @@ function report(){
     const container = document.getElementById('session-container');
 container.innerHTML = ''; // Purana data saaf karne ke liye
 
+// 1. "Session :- " word ko sirf EK BAAR loop se pehle banayein
+const sessionLabel = document.createElement('span');
+sessionLabel.textContent = "Session :- ";
+sessionLabel.style.fontSize = '18px';
+sessionLabel.style.fontWeight = 'bold'; // (Optional) Thoda highlight karne ke liye
+container.appendChild(sessionLabel);
+
+// Duplicate check karne ke liye ek array (taaki ek hi saal do baar na aaye)
+const seenSessions = [];
+
 info.session.forEach((item, index) => {
-    // 1. Ek simple blank div banayein
-    const cardDiv = document.createElement('span');
-    cardDiv.className = 'session-card'; 
-
+    // Agar khaali data hai ya pehle se aa chuka hai, toh skip karein
+    if (!item.text || seenSessions.includes(item.text)) return;
     
-    // 3. Paragraph element banayein aur session text dalein
-    const textPara = document.createElement('span');
-    textPara.textContent = "Session :- " + item.text + "   ";
+    seenSessions.push(item.text);
 
-    // 4. Heading aur Paragraph ko naye div mein dalein
+    // 2. Har ek saal (year) ke liye alag se span banayein
+    const yearSpan = document.createElement('span');
+    yearSpan.className = 'session-card';
+    yearSpan.style.fontSize = '20px';
     
-    cardDiv.appendChild(textPara);
+    // Agar pehla session nahi hai, toh beech mein comma (,) lagane ke liye
+    if (seenSessions.length > 1) {
+        yearSpan.textContent = ", " + item.text;
+    } else {
+        yearSpan.textContent = item.text;
+    }
 
-    // 5. Final card ko main session-container mein insert karein
-    container.appendChild(cardDiv);
+    // 3. Is saal ko main container mein insert karein
+    container.appendChild(yearSpan);
 });
 
   let tableBody = document.getElementById("tableBody");

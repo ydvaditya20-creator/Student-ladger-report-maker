@@ -465,7 +465,8 @@ const targetHeads = [...new Set([
 ])];
 
 // Comparison ke liye uppercase list
-const normalizedTargetHeads = targetHeads.map(head => head.toUpperCase()); let feeRecrds = [0];
+const normalizedTargetHeads = targetHeads.map(head => head.toUpperCase()); 
+		let feeRecrds = [0];
         let receiptsist = [0];
 
         // --- STEP 1: PARSE ALL LINES SAFELY ---
@@ -473,11 +474,10 @@ const normalizedTargetHeads = targetHeads.map(head => head.toUpperCase()); let f
             if (!line.trim()) return;
 
             // Check if line contains target heads
-            let headIndex = parts.findIndex(p => normalizedTargetHeads.includes(p.toUpperCase())
-            if (matchedHead) {
+            let matchedHead = targetHeads.find(head => line.toUpperCase().includes(head));     
+			if (matchedHead) {
                 let parts = line.split('\t').map(p => p.trim());
-                let headIndex = parts.findIndex(p => targetHeads.includes(p.toUpperCase()));
-                
+                let headIndex = parts.findIndex(p => normalizedTargetHeads.includes(p.toUpperCase()));
                 if (headIndex !== -1) {
                     feeRecords.push({
                         feeHead: parts[headIndex],

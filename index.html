@@ -918,6 +918,7 @@ Object.values(monthlyData).forEach(m => {
     
     tableBody.innerHTML += row;
 });
+	checkLateFineManually();
 initPureJSFilterAndTotal();
 
     }
@@ -1107,7 +1108,118 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
 }
     
 
-       
+ function checkLateFineManually() {
+
+    const table = document.getElementById("myTable");
+
+    if (!table) {
+        console.log("myTable nahi mila.");
+        return;
+    }
+
+    const headers = [...table.querySelectorAll("thead th")]
+        .map(th => th.innerText.trim());
+
+    function getColumnIndex(columnName) {
+        return headers.findIndex(
+            h => h.toLowerCase() === columnName.toLowerCase()
+        );
+    }
+
+    const paymentDateIndex = getColumnIndex("Fee Payment Date");
+    const receiptIndex = getColumnIndex("Fees Receipt No.");
+    const balanceIndex = getColumnIndex("Fees Balance Amount");
+    const periodIndex = getColumnIndex("Details (Period)");
+
+    if (
+        paymentDateIndex === -1 ||
+        receiptIndex === -1 ||
+        balanceIndex === -1
+    ) {
+        console.log("Required column nahi mila.");
+        return;
+    }
+
+    const rows = table.querySelectorAll("tbody tr");
+
+    rows.forEach((row, rowIndex) => {
+
+        const cells = row.querySelectorAll("td");
+
+        if (!cells.length) return;
+
+        // Cell ki actual value nikalne ka function
+        function getCellValue(index) {
+
+            const cell = cells[index];
+
+            if (!cell) return "";
+
+            // Agar input hai
+            const input = cell.querySelector("input");
+
+            if (input) {
+                return input.value.trim();
+            }
+
+            // Agar select hai
+            const select = cell.querySelector("select");
+
+            if (select) {
+                return select.value.trim();
+            }
+
+            return cell.innerText.trim();
+        }
+
+        const paymentDate = getCellValue(paymentDateIndex);
+        const receiptNo = getCellValue(receiptIndex);
+        const balance = getCellValue(balanceIndex);
+
+        const period =
+            periodIndex !== -1
+                ? getCellValue(periodIndex)
+                : `Row ${rowIndex + 1}`;
+
+        // "-", "--", "N/A", blank ko empty maana jayega
+        function isEmptyValue(value) {
+
+            value = value.trim().toLowerCase();
+
+            return (
+                value === "" ||
+                value === "-" ||
+                value === "--" ||
+                value === "n/a" ||
+                value === "na" ||
+                value === "null" ||
+                value === "undefined"
+            );
+        }
+
+        // ₹, comma etc. hata kar number nikalo
+        const balanceAmount =
+            parseFloat(
+                balance.replace(/[^0-9.-]/g, "")
+            ) || 0;
+
+        // CONDITION
+        if (
+            isEmptyValue(paymentDate) &&
+            isEmptyValue(receiptNo) &&
+            balanceAmount === 0
+        ) {
+
+            alert(
+                "⚠️ CHECK LATE FINE MANUALLY\n\n" +
+                "Period: " + period + "\n" +
+                "Fee Payment Date: " + paymentDate + "\n" +
+                "Fees Receipt No.: " + receiptNo + "\n" +
+                "Fees Balance Amount: " + balance
+            );
+        }
+    });
+}      
 
 
     </script>

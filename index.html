@@ -838,31 +838,31 @@ Object.values(monthlyData).forEach(m => {
         <td><b>${m.month}</b></td>
         
         <!-- Processing Fee (dynamic only when accrue) -->
-        ${hasProcessingFee ? `<td>${m.processingFee ? '₹' + m.processingFee : '0'}</td>` : ''}
+        ${hasProcessingFee ? `<td>${m.processingFee ?  m.processingFee : '0'}</td>` : ''}
         
         <!-- Monthly Composite Fees -->
-        <td>${m.compositeFee ? '₹' + m.compositeFee : '0'}</td>
+        <td>${m.compositeFee ?  m.compositeFee : '0'}</td>
         
         <!-- Monthly Transport Fees -->
-        <td>${m.transportFee ? '₹' + m.transportFee : '0'}</td>
+        <td>${m.transportFee ? m.transportFee : '0'}</td>
         
         <!-- Late Fine on Composite Fee -->
-        <td style="color:#e67e22; font-weight:bold;">${m.lateFine ? '₹' + m.lateFine : '0'}</td>
+        <td style="color:#e67e22; font-weight:bold;">${m.lateFine ?  m.lateFine : '0'}</td>
         
         <!-- Total Fees -->
-        <td><b>${m.totalFees ? '₹' + m.totalFees : '0'}</b></td>
+        <td><b>${m.totalFees ? m.totalFees : '0'}</b></td>
         
         <!-- Concession on Processing Fees (dynamic only when accrue) -->
-        ${hasProcessingFee ? `<td>${m.concessionProcessing ? '₹' + m.concessionProcessing : '0'}</td>` : ''}
+        ${hasProcessingFee ? `<td>${m.concessionProcessing ?  m.concessionProcessing : '0'}</td>` : ''}
         
         <!-- Concession on Monthly Composite -->
-        <td>${m.concessionComposite ? '₹' + m.concessionComposite : '0'}</td>
+        <td>${m.concessionComposite ? m.concessionComposite : '0'}</td>
         
         <!-- Concession on Transport -->
-        <td>${m.concessionTransport ? '₹' + m.concessionTransport : '0'}</td>
+        <td>${m.concessionTransport ? m.concessionTransport : '0'}</td>
         
         <!-- Fees Payable Amount -->
-        <td><b>${m.payableAmount ? '₹' + m.payableAmount : '0'}</b></td>
+        <td><b>${m.payableAmount ?  m.payableAmount : '0'}</b></td>
         
         <!-- Fee Payment Date -->
         <td>${m.depositDate}</td>
@@ -871,10 +871,10 @@ Object.values(monthlyData).forEach(m => {
         <td>${m.receiptNo}</td>
         
         <!-- Paid Amount -->
-        <td style="color:green; font-weight:bold;">${m.paidAmount ? '₹' + m.paidAmount : '0'}</td>
+        <td style="color:green; font-weight:bold;">${m.paidAmount ? m.paidAmount : '0'}</td>
         
         <!-- Fees Balance Amount -->
-        <td style="${m.balanceAmount > 0 ? 'color:red; font-weight:bold;' : ''}">${m.balanceAmount ? '₹' + m.balanceAmount : '0'}</td>
+        <td style="${m.balanceAmount > 0 ? 'color:red; font-weight:bold;' : ''}">${m.balanceAmount ?  m.balanceAmount : '0'}</td>
         
         <!-- Remarks (Payment Mode) -->
         <td><i>${m.paymentMode}</i></td>

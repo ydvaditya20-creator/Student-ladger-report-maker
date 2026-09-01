@@ -153,6 +153,21 @@ th:hover .filter-content, .filter-content:hover { display: block; }
      <button id="editPageBtn" onclick="toggleEditMode()" style="padding: 8px 8px; width: auto; font-size: 13px; font-weight: bold; background-color: #f97e6c; color: hwb(0 2% 98%); border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif;">
             Edit Page: OFF
         </button>
+	 <label for="targetHeadsInput"><b>Fee Heads:</b></label>
+
+    <textarea
+        id="targetHeadsInput"
+        rows="6"
+        style="width:100%;"
+        placeholder="Har fee head alag line mein likhein"
+    >MONTHLY COMPOSITE FEES
+TRANSPORT CHARGE
+PROCESSING FEES
+MONTHLY COMPOSITE FEE (I-XII)
+TRANSPORT FEES
+PROCESSING FEES(I-XII)
+MONTHLY COMPOSITE FEE</textarea>
+</div>
 <div class="dynamic-modifiers" style="display: flex; gap: 20px; flex-wrap: wrap;margin-top:5px">
             <!-- रो कंट्रोलर -->
             <div style="flex: 1; min-width: 250px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -426,8 +441,31 @@ matches.forEach(match => {
 });
 
         let lines = text.split('\n');
-        const targetHeads = ["MONTHLY COMPOSITE FEES", "TRANSPORT CHARGE", "PROCESSING FEES","MONTHLY COMPOSITE FEE (I-XII)", "TRANSPORT FEES", "PROCESSING FEES(I-XII)","MONTHLY COMPOSITE FEE"];
-        let feeRecrds = [0];
+		
+        const defaultTargetHeads = [
+    "MONTHLY COMPOSITE FEES",
+    "TRANSPORT CHARGE",
+    "PROCESSING FEES",
+    "MONTHLY COMPOSITE FEE (I-XII)",
+    "TRANSPORT FEES",
+    "PROCESSING FEES(I-XII)",
+    "MONTHLY COMPOSITE FEE"
+];
+
+// User ke textbox se heads lena
+const userTargetHeads = document.getElementById("targetHeadsInput").value
+    .split(/\r?\n/)
+    .map(head => head.trim())
+    .filter(head => head !== "");
+
+// Default + User heads ko combine karna
+const targetHeads = [...new Set([
+    ...defaultTargetHeads,
+    ...userTargetHeads
+])];
+
+// Comparison ke liye uppercase list
+const normalizedTargetHeads = targetHeads.map(head => head.toUpperCase()); let feeRecrds = [0];
         let receiptsist = [0];
 
         // --- STEP 1: PARSE ALL LINES SAFELY ---
@@ -435,8 +473,7 @@ matches.forEach(match => {
             if (!line.trim()) return;
 
             // Check if line contains target heads
-            let matchedHead = targetHeads.find(head => line.toUpperCase().includes(head));
-            
+            let headIndex = parts.findIndex(p => normalizedTargetHeads.includes(p.toUpperCase())
             if (matchedHead) {
                 let parts = line.split('\t').map(p => p.trim());
                 let headIndex = parts.findIndex(p => targetHeads.includes(p.toUpperCase()));

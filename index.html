@@ -580,6 +580,14 @@ if(receipt.lateFine && receipt.lateFine !== "0.00" && receipt.lateFine !== "0") 
         r.lateFine = "0.00";
         return; // Is record ke liye baaki ki saari calculation skip ho jayegi
     }
+
+			let balance = String(r.balanceAmount ?? "")
+    .replace(/[₹,\s]/g, "")
+    .trim();
+			if (balance <= 0 && r.receiptNo === "-") {
+    r.lateFine = "0.00";
+    return;
+}
             // Check karein agar paidDate missing hai, zero hai ya khali hai (Sirf Unpaid ke liye)
             let isNotPaid = !r.paidDate || r.paidDate === "0" || r.paidDate === "0.00" || r.paidDate.trim() === "" || r.paidDate === "-";
 

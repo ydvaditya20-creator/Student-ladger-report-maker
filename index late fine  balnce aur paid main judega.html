@@ -711,9 +711,17 @@ feeRecords.forEach(r => {
     }
 
     // Totals aur Metadata updatation
-    m.paidAmount += (parseFloat(r.paidAmount) || 0);
-    m.balanceAmount += (parseFloat(r.balanceAmount) || 0);
-    
+    if ((parseFloat(r.paidAmount) || 0) !== 0) {
+    m.paidAmount += (parseFloat(r.paidAmount) || 0) + fine;
+} else {
+    m.paidAmount += 0;
+}
+
+if ((parseFloat(r.balanceAmount) || 0) !== 0) {
+    m.balanceAmount += (parseFloat(r.balanceAmount) || 0) + fine;
+} else {
+    m.balanceAmount += 0;
+}
     if (r.paidDate) m.depositDate = r.paidDate;
     if (r.receiptNo) m.receiptNo = r.receiptNo;
     if (r.paymentMode) m.paymentMode = r.paymentMode;

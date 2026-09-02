@@ -169,7 +169,7 @@ TRANSPORT FEES
 PROCESSING FEES(I-XII)
 MONTHLY COMPOSITE FEE</textarea>
 		 </div>
-</div>
+
 <div class="dynamic-modifiers" style="display: flex; gap: 20px; flex-wrap: wrap;margin-top:5px">
             <!-- रो कंट्रोलर -->
             <div style="flex: 1; min-width: 250px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -399,6 +399,7 @@ function deleteAtColumn() {
 
     function toggleText() {
   var btn = document.getElementById("myToggleButton");
+		btn.style.borderBottom = "2px  solid black";
   if (btn.innerText === "Shemford School Basahi , Mirzapur") {
     btn.innerText = "Shemford School Natwa , Mirzapur";
   } else {

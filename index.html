@@ -1017,7 +1017,28 @@ Object.values(monthlyData).forEach(m => {
         <td>${m.depositDate}</td>
         
         <!-- Fees Receipt No. -->
-        <td>${m.receiptNo}</td>
+        <td>
+    ${(() => {
+        // Agar receiptNo khali hai ya "-" hai, toh waisa hi dikhayein
+        if (!m.receiptNo || m.receiptNo === "-" || m.receiptNo === "N/A") {
+            return m.receiptNo || "-";
+        }
+        
+        // Comma se saare receipt numbers ko alag karein
+        let nos = m.receiptNo.split(',').map(r => r.trim());
+        // Agar links hain toh unhe bhi alag karein, nahi toh khali array
+        let links = m.receiptLink ? m.receiptLink.split(',').map(l => l.trim()) : [];
+        
+        // Har ek receipt number ke liye <a> tag banayein
+        return nos.map((no, index) => {
+            let link = links[index] && links[index] !== "#" ? links[index] : null;
+            // Agar link maujood hai toh anchor tag, nahi toh simple text
+            return link 
+                ? `<a href="${link}" target="_blank" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
+                : no;
+        }).join(', '); // Wapas comma lagakar screen par dikhayein
+    })()}
+</td>
         
         <!-- Paid Amount -->
         <td style="color:green; font-weight:bold;">${m.paidAmount ? m.paidAmount : '0'}</td>

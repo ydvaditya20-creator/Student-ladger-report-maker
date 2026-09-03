@@ -1035,7 +1035,7 @@ Object.values(monthlyData).forEach(m => {
             let link = links[index] && links[index] !== "#" ? links[index] : null;
             // Agar link maujood hai toh anchor tag, nahi toh simple text
             return link 
-                ? `<a href="${link}" target="_blank" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
+                ? `<a href="${link}" target="_blank" rel="noopener noreferrer style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
                 : no;
         }).join(', '); // Wapas comma lagakar screen par dikhayein
     })()}

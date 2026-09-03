@@ -596,10 +596,11 @@ lines.forEach(line => {
             let lastPart = rParts[rParts.length - 1] || "";
             let extractedLink = "";
 
-            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]]+)\]/);
+            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]\s]+)\]/);
 
             if (linkMatch && linkMatch[1]) {
-                extractedLink = linkMatch[1];
+                // .trim() lagakar bachi-kuchi spaces ko clean karein
+                extractedLink = linkMatch[1].trim(); 
             }
 
             receiptsList.push({

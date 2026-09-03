@@ -6,8 +6,8 @@
         
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 30px; background-color: #f1f3f5; color: #212529; }
-        textarea { width: 100%; height: 25px;resize: none;  padding: 12px; border: 2px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 13px; box-sizing: border-box; }
-        button { background-color: #007bff; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 6px; margin-top: 10px; }
+        textarea { width: 100%; height: 25px;  padding: 12px; border: 2px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 13px; box-sizing: border-box; }
+        button {background-color: #007bff;color: white;border-bottom:4px;border: none;padding: 12px 25px;font-size: 16px;font-weight: bold;cursor: pointer;border-radius: 6px;/* margin-top: 10px; */}
         button:hover { background-color: #007bff; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
         pre { background: #212529; color: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; max-height: 400px; }
@@ -193,7 +193,7 @@ MONTHLY COMPOSITE FEE</textarea>
         </div>
      
     <div class="grid">
-        <div style="display:none; width:100%">
+        <div style="display:nne; width:100%">
             <h3>Generated JSON Structure</h3>
             <pre id="jsonOutput">// JSON data yahan dikhega...</pre>
         </div>
@@ -399,19 +399,91 @@ function deleteAtColumn() {
 
     function toggleText() {
   var btn = document.getElementById("myToggleButton");
-		btn.style.borderBottom = "2px  solid black";
+  btn.style.borderBottom = "2px solid black";
+
   if (btn.innerText === "Shemford School Basahi , Mirzapur") {
     btn.innerText = "Shemford School Natwa , Mirzapur";
   } else {
     btn.innerText = "Shemford School Basahi , Mirzapur";
   }
 }
+    const myTextArea = document.getElementById('rawInput');
+const baseUrl = "https://edunext1.com";
+
+myTextArea.addEventListener('paste', function(e) {
+    // 1. Sabse pehle clipboard se asli format wala plain text uthayein (jisme tabs/spaces bilkul safe hain)
+    let rawText = e.clipboardData.getData('text/plain');
+    
+    // 2. Background processing ke liye clipboard se HTML bhi uthayein
+    let pastedHtml = e.clipboardData.getData('text/html');
+
+    if (pastedHtml && rawText) {
+        e.preventDefault(); // Browser ke default flat paste ko rokein
+
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(pastedHtml, 'text/html');
+        let links = doc.getElementsByTagName('a');
+
+        // Case 1: Agar Onclick wala multi-receipt system hai
+        if (links.length > 0) {
+            // Hum direct plain text ke andar hi 'Print Receipt' ko badlenge
+            // Taaki tabs aur spaces par koi asar na pade
+            let receiptCounter = 0;
+
+            // Ek unique system taaki har ek 'Print Receipt' ko uske sahi alag link se hi badla jaye
+            // Raw text mein 'Print Receipt' ko dhoondh kar loop chalana
+            for (let link of links) {
+                let onclickText = link.getAttribute('onclick');
+                
+                if (onclickText && onclickText.includes('TemplateFeeDataReceipt')) {
+                    let match = onclickText.match(/['"]([^'"]*TemplateFeeDataReceipt[^'"]*)['"]/);
+                    if (match && match) {
+                        let completeUrl = baseUrl + match[1];
+                        
+                        // Pehle wale raw text mein jahan bhi 'Print Receipt' hai, 
+                        // use link ke sath replace karein par sirf ek ek karke (nth occurrence)
+                        let searchWord = "Print Receipt";
+                        let replaceWord = `Print Receipt [${completeUrl}]`;
+                        
+                        // JavaScript primitive replacement for unique instances
+                        let index = -1;
+                        for (let i = 0; i <= receiptCounter; i++) {
+                            index = rawText.indexOf(searchWord, index + 1);
+                        }
+                        
+                        if (index !== -1) {
+                            rawText = rawText.substring(0, index) + replaceWord + rawText.substring(index + searchWord.length);
+                            // Ek index aage badha rahe hain kyunki replacement string badi hai
+                            receiptCounter++; 
+                        }
+                    }
+                }
+            }
+            
+            // Final modified text ko textarea mein dalein jisme tabs barkarar hain
+            myTextArea.value = rawText;
+            
+        } else {
+            // Case 2: Agar hidden inputs wala system hai
+            let encKeyInput = doc.querySelector('input[name="encKey"]');
+            let encKey = encKeyInput ? encKeyInput.value : '';
+            
+            if (encKey) {
+                myTextArea.value = rawText + `\n[Generated_Link: ${baseUrl}/TemplateFeeDataReceipt?enc_id=OaxhvCghIxk7OW_h9obYeg&templateid=1&encKey=${encKey}]`;
+            } else {
+                myTextArea.value = rawText;
+            }
+        }
+
+        // Agar aapka JSON/RJS function dynamic input par chalta hai, toh use trigger karein:
+        myTextArea.dispatchEvent(new Event('input'));
+    }
+});
     let schoolData=[];
     let feeRecords = [];
     let receiptsList = [];
 
     function parseSchoolData() {
-		toggleText();
         let text = document.getElementById("rawInput").value;
         
         // Student Info parsing (Same as before pattern match)
@@ -474,49 +546,76 @@ const normalizedTargetHeads = targetHeads.map(head => head.toUpperCase());
         let receiptsist = [0];
 
         // --- STEP 1: PARSE ALL LINES SAFELY ---
-        lines.forEach(line => {
-            if (!line.trim()) return;
+lines.forEach(line => {
+    if (!line.trim()) return;
 
-            // Check if line contains target heads
-            let matchedHead = targetHeads.find(head => line.toUpperCase().includes(head));     
-			if (matchedHead) {
-                let parts = line.split('\t').map(p => p.trim());
-                let headIndex = parts.findIndex(p => normalizedTargetHeads.includes(p.toUpperCase()));
-                if (headIndex !== -1) {
-                    feeRecords.push({
-                        feeHead: parts[headIndex],
-                        period: parts[headIndex + 1] || "",
-                        payableAmount: parts[headIndex + 2] || "",
-                        concessionAmount: parts[headIndex + 3] || "",
-                        waiverAmount: parts[headIndex + 4] || "",
-                        dueDate: parts[headIndex + 5] || "",
-                        paidAmount: parts[headIndex + 6] || "",
-                        excessAmount: parts[headIndex + 7] || "",
-                        adjustedAmount: parts[headIndex + 8] || "",
-                        refundAmount: parts[headIndex + 9] || "",
-                        paidDate: (parts[headIndex + 10] || "").trim(),
-                        balanceAmount: parts[headIndex + 11] || "",
-                        receiptNo: "-",
-                        lateFine: "",
-                        paymentMode: "Unpaid"
-                    });
-                }
+    // Check if line contains target heads
+    let matchedHead = targetHeads.find(head =>
+        line.toUpperCase().includes(head.toUpperCase())
+    );
+
+    if (matchedHead) {
+        let parts = line.split('\t').map(p => p.trim());
+
+        let headIndex = parts.findIndex(p =>
+            normalizedTargetHeads.includes(p.toUpperCase())
+        );
+
+        if (headIndex !== -1) {
+            feeRecords.push({
+                feeHead: parts[headIndex],
+                period: parts[headIndex + 1] || "",
+                payableAmount: parts[headIndex + 2] || "",
+                concessionAmount: parts[headIndex + 3] || "",
+                waiverAmount: parts[headIndex + 4] || "",
+                dueDate: parts[headIndex + 5] || "",
+                paidAmount: parts[headIndex + 6] || "",
+                excessAmount: parts[headIndex + 7] || "",
+                adjustedAmount: parts[headIndex + 8] || "",
+                refundAmount: parts[headIndex + 9] || "",
+                paidDate: (parts[headIndex + 10] || "").trim(),
+                balanceAmount: parts[headIndex + 11] || "",
+                receiptNo: "-",
+                lateFine: "",
+                paymentMode: "Unpaid"
+            });
+        }
+    }
+});
+
+
+// --- RECEIPT DETAIL PROCESSING ---
+lines.forEach(line => {
+
+    if (/^N-\d{2}-\d+/.test(line) && line.includes("Print Receipt")) {
+
+        let rParts = line.split('\t').map(p => p.trim());
+
+        if (rParts.length >= 3) {
+
+            let lastPart = rParts[rParts.length - 1] || "";
+            let extractedLink = "";
+
+            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]]+)\]/);
+
+            if (linkMatch && linkMatch[1]) {
+                extractedLink = linkMatch[1];
             }
 
-            // Receipt detail processing with tab separation to handle spaces/empty fields
-            if (line.startsWith("N-") || (line.includes("-24-") || line.includes("-25-") || line.includes("-26-")) && line.includes("Print")) {
-                let rParts = line.split('\t').map(p => p.trim());
-                if(rParts.length >= 3) {
-                    receiptsList.push({
-                        receiptNo: rParts[0] || "",
-                        receiptDate: (rParts[1] || "").trim(),
-                        amount: rParts[2] || "",
-                        lateFine: rParts[4] || "", // Khali column index track standard formatting ke hisab se
-                        paymentMode: rParts[8] || "Cash" // Mode auto detection column se
-                    });
-                }
-            }
-        });
+            receiptsList.push({
+                receiptNo: rParts[0] || "",
+                receiptDate: (rParts[1] || "").trim(),
+                amount: rParts[2] || "",
+                lateFine: rParts[4] || "0.00",
+                paymentMode: rParts[8]
+                    ? rParts[8].replace(/Print Receipt.*/, '').trim()
+                    : "Online Fee",
+                receiptLink: extractedLink
+            });
+        }
+    }
+});
+
 
         // --- STEP 2: MULTI-RECORD MATCHING & LAST MATCH FINE DISTRIBUTION ---
                 // --- STEP 2: MULTI-RECORD MATCHING (COMMA-SEPARATED FOR MULTIPLE RECEIPTS) ---

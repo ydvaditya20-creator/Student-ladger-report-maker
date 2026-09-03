@@ -1026,24 +1026,71 @@ Object.values(monthlyData).forEach(m => {
         <!-- Fees Receipt No. -->
 <td>
     ${(() => {
-        // Agar receiptNo khali hai ya "-" hai, toh waisa hi dikhayein
+
         if (!m.receiptNo || m.receiptNo === "-" || m.receiptNo === "N/A") {
             return m.receiptNo || "-";
         }
-        
-        // Comma se saare receipt numbers ko alag karein
-        let nos = m.receiptNo.split(',').map(r => r.trim());
-        // Agar links hain toh unhe bhi alag karein, nahi toh khali array
-        let links = m.receiptLink ? m.receiptLink.split(',').map(l => l.trim()) : [];
-        
-        // Har ek receipt number ke liye <a> tag banayein
+
+        const nos = String(m.receiptNo)
+            .split(",")
+            .map(r => r.trim());
+
+        const links = m.receiptLink
+            ? String(m.receiptLink)
+                .split(",")
+                .map(l => l.trim())
+            : [];
+
         return nos.map((no, index) => {
-            let link = links[index] && links[index] !== "#" ? links[index] : null;
-            // Agar link maujood hai toh anchor tag, nahi toh simple text
-            return link 
-                ? `<a href="${link}" target="_blank" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
-                : no;
-        }).join(', '); // Wapas comma lagakar screen par dikhayein
+
+            let link = links[index] || "";
+
+            if (!link || link === "#" || link === "-") {
+                return no;
+            }
+
+            // ------------------------------------
+            // Markdown [text](URL) se URL nikalo
+            // ------------------------------------
+            const match = link.match(/\]\((https?:\/\/[\s\S]*?)\)$/);
+
+            if (match) {
+                link = match[1];
+            }
+
+            // ------------------------------------
+            // Escaped characters ko normal karo
+            // ------------------------------------
+            link = link
+                .replace(/\\&/g, "&")
+                .replace(/\\_/g, "_")
+                .replace(/\\=/g, "=");
+
+            // ------------------------------------
+            // Sirf valid HTTP/HTTPS URL par link banao
+            // ------------------------------------
+            if (/^https?:\/\//i.test(link)) {
+
+                return `
+                    <a href="${link}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       style="
+                           color:#0066cc;
+                           text-decoration:underline;
+                           font-weight:bold;
+                           cursor:pointer;
+                       ">
+                        ${no}
+                    </a>
+                `;
+
+            }
+
+            return no;
+
+        }).join(", ");
+
     })()}
 </td>
 

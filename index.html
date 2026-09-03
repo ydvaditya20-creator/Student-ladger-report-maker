@@ -628,14 +628,16 @@ lines.forEach(line => {
             if (matchingRecords.length > 0) {
                 matchingRecords.forEach(record => {
                     // Agar receiptNo pehle se 'N/A' hai, toh naye receipt se replace karein
-                    if (record.receiptNo === "-" || record.receiptNo === "") {
-                        record.receiptNo = receipt.receiptNo;
-                    } else {
-                        // Agar pehle se koi receipt no. maujood hai, aur naya wala alag hai, toh comma lagakar jodein
-                        let existingReceipts = record.receiptNo.split(',').map(r => r.trim());
-                        if (!existingReceipts.includes(receipt.receiptNo)) {
-                            record.receiptNo += ", " + receipt.receiptNo;
-                        }
+                   if (record.receiptNo === "-" || record.receiptNo === "") {
+            record.receiptNo = receipt.receiptNo;
+            record.receiptLink = receipt.receiptLink; // <-- Pehla link save karein
+        } else {
+            let existingReceipts = record.receiptNo.split(',').map(r => r.trim());
+            if (!existingReceipts.includes(receipt.receiptNo)) {
+                record.receiptNo += ", " + receipt.receiptNo;
+                // <-- Naya link comma lagakar jodein (agar link maujood hai)
+                record.receiptLink += ", " + (receipt.receiptLink || "#"); 
+            }
                     }
 
                     // Aise hi Payment Mode ke sath bhi comma lagakar unique modes ko jodein

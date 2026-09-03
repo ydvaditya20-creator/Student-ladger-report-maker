@@ -588,19 +588,22 @@ lines.forEach(line => {
 
 // --- RECEIPT DETAIL PROCESSING ---
 lines.forEach(line => {
+
     if (/^N-\d{2}-\d+/.test(line) && line.includes("Print Receipt")) {
+
         let rParts = line.split('\t').map(p => p.trim());
 
         if (rParts.length >= 3) {
+
             let lastPart = rParts[rParts.length - 1] || "";
             let extractedLink = "";
 
-            // Naya Regex: [^\]\s\r\n]+ lagane se link brackets, space aur hidden lines sabse pehle hi ruk jayega
-            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]\s\r\n]+)\]/);
+            // Aapka original regex
+            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]]+)\]/);
 
+            // linkMatch[1] se asli URL nikalenge aur .replace se sabhi tarah ke hidden \r ya \n ko saaf karenge
             if (linkMatch && linkMatch[1]) {
-                // .trim() lagakar bachi kuchi hidden space ko bhi filter karein
-                extractedLink = linkMatch[1].trim();
+                extractedLink = linkMatch[1].trim().replace(/[\r\n]/g, "");
             }
 
             receiptsList.push({
@@ -616,6 +619,7 @@ lines.forEach(line => {
         }
     }
 });
+
 
 
 
@@ -1022,26 +1026,24 @@ Object.values(monthlyData).forEach(m => {
         <!-- Fees Receipt No. -->
 <td>
     ${(() => {
-        // Agar receiptNo khali hai ya "-" hai, toh waisa hi dikhayein
         if (!m.receiptNo || m.receiptNo === "-" || m.receiptNo === "N/A") {
             return m.receiptNo || "-";
         }
         
-        // Comma se saare receipt numbers ko alag karein
         let nos = m.receiptNo.split(',').map(r => r.trim());
-        // Agar links hain toh unhe bhi alag karein, nahi toh khali array
         let links = m.receiptLink ? m.receiptLink.split(',').map(l => l.trim()) : [];
         
-        // Har ek receipt number ke liye <a> tag banayein
         return nos.map((no, index) => {
-            let link = links[index] && links[index] !== "#" ? links[index] : null;
-            // Agar link maujood hai toh anchor tag, nahi toh simple text
+            let link = links[index] && links[index] !== "#" && links[index] !== "-" ? links[index] : null;
+            
+            // Simple aur clean link jaisa aapne html mein check kiya
             return link 
                 ? `<a href="${link}" target="_blank" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
                 : no;
-        }).join(', '); // Wapas comma lagakar screen par dikhayein
+        }).join(', ');
     })()}
 </td>
+
 
 
 

@@ -586,21 +586,19 @@ lines.forEach(line => {
 
 // --- RECEIPT DETAIL PROCESSING ---
 lines.forEach(line => {
-
     if (/^N-\d{2}-\d+/.test(line) && line.includes("Print Receipt")) {
-
         let rParts = line.split('\t').map(p => p.trim());
 
         if (rParts.length >= 3) {
-
             let lastPart = rParts[rParts.length - 1] || "";
             let extractedLink = "";
 
-            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]\s]+)\]/);
+            // Naya Regex: [^\]\s\r\n]+ lagane se link brackets, space aur hidden lines sabse pehle hi ruk jayega
+            let linkMatch = lastPart.match(/\[(https?:\/\/[^\]\s\r\n]+)\]/);
 
             if (linkMatch && linkMatch[1]) {
-                // .trim() lagakar bachi-kuchi spaces ko clean karein
-                extractedLink = linkMatch[1].trim(); 
+                // .trim() lagakar bachi kuchi hidden space ko bhi filter karein
+                extractedLink = linkMatch[1].trim();
             }
 
             receiptsList.push({
@@ -616,6 +614,7 @@ lines.forEach(line => {
         }
     }
 });
+
 
 
         // --- STEP 2: MULTI-RECORD MATCHING & LAST MATCH FINE DISTRIBUTION ---
@@ -1020,27 +1019,26 @@ Object.values(monthlyData).forEach(m => {
         
         <!-- Fees Receipt No. -->
         <td>
+    ${((<!-- Fees Receipt No. -->
+<td>
     ${(() => {
-        // Agar receiptNo khali hai ya "-" hai, toh waisa hi dikhayein
         if (!m.receiptNo || m.receiptNo === "-" || m.receiptNo === "N/A") {
             return m.receiptNo || "-";
         }
         
-        // Comma se saare receipt numbers ko alag karein
         let nos = m.receiptNo.split(',').map(r => r.trim());
-        // Agar links hain toh unhe bhi alag karein, nahi toh khali array
         let links = m.receiptLink ? m.receiptLink.split(',').map(l => l.trim()) : [];
         
-        // Har ek receipt number ke liye <a> tag banayein
         return nos.map((no, index) => {
-            let link = links[index] && links[index] !== "#" ? links[index] : null;
-            // Agar link maujood hai toh anchor tag, nahi toh simple text
+            let link = links[index] && links[index] !== "#" && links[index] !== "-" ? links[index] : null;
+            // rel="noopener noreferrer" lagane se browser securely link open karega aur GitHub block nahi karega
             return link 
-                ? `<a href="${link}" target="_blank" rel="noopener noreferrer style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
+                ? `<a href="${link}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
                 : no;
-        }).join(', '); // Wapas comma lagakar screen par dikhayein
+        }).join(', ');
     })()}
 </td>
+
         
         <!-- Paid Amount -->
         <td style="color:green; font-weight:bold;">${m.paidAmount ? m.paidAmount : '0'}</td>

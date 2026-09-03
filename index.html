@@ -1018,7 +1018,6 @@ Object.values(monthlyData).forEach(m => {
         <td>${m.depositDate}</td>
         
         <!-- Fees Receipt No. -->
-        
 <td>
     ${(() => {
         if (!m.receiptNo || m.receiptNo === "-" || m.receiptNo === "N/A") {
@@ -1030,13 +1029,16 @@ Object.values(monthlyData).forEach(m => {
         
         return nos.map((no, index) => {
             let link = links[index] && links[index] !== "#" && links[index] !== "-" ? links[index] : null;
-            // rel="noopener noreferrer" lagane se browser securely link open karega aur GitHub block nahi karega
+            
+            // rel="noreferrer" aur referrerpolicy="no-referrer" browser ko aapka source URL bhejne se rokta hai.
+            // Isse website ko lagega ki user ne direct browser mein copy-paste kiya hai!
             return link 
-                ? `<a href="${link}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
+                ? `<a href="${link}" target="_blank" rel="noreferrer" referrerpolicy="no-referrer" style="color: #0066cc; text-decoration: underline; font-weight: bold;">${no}</a>` 
                 : no;
         }).join(', ');
     })()}
 </td>
+
 
         
         <!-- Paid Amount -->

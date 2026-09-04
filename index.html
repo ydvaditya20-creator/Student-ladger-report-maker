@@ -867,6 +867,44 @@ info.session.forEach((item, index) => {
     container.appendChild(yearSpan);
 });
 
+	// 1. Dono amounts ka total sum nikalna
+const totalAmount = receiptsList.reduce((sum, item) => sum + item.amount, 0);
+const totalLateFine = receiptsList.reduce((sum, item) => sum + item.lateFine, 0);
+
+// 2. Apne fixed container body ka reference lena
+const logBody = document.getElementById("log-content-body");
+
+if (logBody) {
+    logBody.innerHTML = ""; // Purana data saaf karne ke liye
+
+    // 3. Sabse upar Total Summary Card add karna
+    const summaryHTML = `
+        <div style="background: #eef2f3; border: 1px solid #b2bec3; padding: 10px; margin-bottom: 12px; border-radius: 6px; font-size: 13px; color: #2d3436;">
+            <strong style="color: #2c3e50;">📊 SUMMARY TOTALS:</strong><br>
+            <strong>Total Amount:</strong> ₹${totalAmount.toFixed(2)}<br>
+            <strong>Total Late Fine:</strong> ₹${totalLateFine.toFixed(2)}<br>
+            <strong>Total Receipts:</strong> ${receiptsList.length}
+        </div>
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 10px;">
+    `;
+    logBody.insertAdjacentHTML('beforeend', summaryHTML);
+
+    // 4. Baaki sabhi individual receipts ki details niche list me show karna
+    receiptsList.forEach((receipt, index) => {
+        const itemHTML = `
+            <div class="log-item" style="background: #fff; border: 1px solid #ddd; border-left: 4px solid #3498db; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-size: 12px;">
+                <strong>#${index + 1} Receipt:</strong> ${receipt.receiptNo || "N/A"}<br>
+                <strong>Date:</strong> ${receipt.receiptDate || "N/A"}<br>
+                <strong>Amount:</strong> ₹${receipt.amount.toFixed(2)} | 
+                <strong>Fine:</strong> ₹${receipt.lateFine.toFixed(2)}<br>
+                <strong>Mode:</strong> ${receipt.paymentMode}
+            </div>
+        `;
+        logBody.insertAdjacentHTML('beforeend', itemHTML);
+    });
+}
+
+
   let tableBody = document.getElementById("tableBody");
 tableBody.innerHTML = "";
 

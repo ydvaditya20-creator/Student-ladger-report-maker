@@ -868,41 +868,85 @@ info.session.forEach((item, index) => {
 });
 
 	// 1. Dono amounts ka total sum nikalna
-const totalAmount = receiptsList.reduce((sum, item) => sum + item.amount, 0);
-const totalLateFine = receiptsList.reduce((sum, item) => sum + item.lateFine, 0);
+// 🔴 1. Global object se receipt_list array ko nikalna
+    if (typeof schoolData === "undefined" || !schoolData.receipt_list) {
+        console.error("Error: schoolData ya receipt_list global variable nahi mila.");
+        return;
+    }
 
-// 2. Apne fixed container body ka reference lena
-const logBody = document.getElementById("log-content-body");
+    const dataArray = schoolData.receipt_list;
 
-if (logBody) {
-    logBody.innerHTML = ""; // Purana data saaf karne ke liye
+    // Safety check: Agar dataArray array nahi hai toh function rok do
+    if (!Array.isArray(dataArray)) {
+        console.error("Error: schoolData.receipt_list ek array nahi hai.");
+        return;
+    }
 
-    // 3. Sabse upar Total Summary Card add karna
+    // 🔴 2. Total Sum Nikalne ka logic (Safe format)
+    let totalAmount = 0;
+    let totalLateFine = 0;
+
+    dataArray.forEach(item => {
+        // Amount se currency symbol, comma, space hata kar number mein badalna
+        let amt = 0;
+        if (item.amount !== undefined && item.amount !== null) {
+            amt = parseFloat(String(item.amount).replace(/[^0-9.-]/g, "")) || 0;
+        }
+
+        // Late Fine se currency symbol hata kar number mein badalna
+        let fine = 0;
+        if (item.lateFine !== undefined && item.lateFine !== null) {
+            fine = parseFloat(String(item.lateFine).replace(/[^0-9.-]/g, "")) || 0;
+        }
+
+        totalAmount += amt;
+        totalLateFine += fine;
+    });
+
+    // 🔴 3. Screen par pehle se bane fixed div (#log-content-body) mein data dikhana
+    const logBody = document.getElementById("log-content-body");
+    if (!logBody) {
+        console.error("Fixed log box '#log-content-body' screen par nahi mila. Kripya HTML check karein.");
+        return;
+    }
+
+    // Purana content clear karein taaki har baar fresh report dikhe
+    logBody.innerHTML = ""; 
+
+    // Summary Card design (Sabse Upar)
     const summaryHTML = `
-        <div style="background: #eef2f3; border: 1px solid #b2bec3; padding: 10px; margin-bottom: 12px; border-radius: 6px; font-size: 13px; color: #2d3436;">
-            <strong style="color: #2c3e50;">📊 SUMMARY TOTALS:</strong><br>
-            <strong>Total Amount:</strong> ₹${totalAmount.toFixed(2)}<br>
-            <strong>Total Late Fine:</strong> ₹${totalLateFine.toFixed(2)}<br>
-            <strong>Total Receipts:</strong> ${receiptsList.length}
+        <div style="background: #eef2f3; border: 1px solid #b2bec3; padding: 12px; margin-bottom: 12px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 13px; color: #2d3436;">
+            <strong style="color: #2c3e50; font-size: 14px;"> SUMMARY TOTALS</strong><br><br>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span><strong>Total Receipt Amount:</strong></span>
+                <span style="color: #27ae60; font-weight: bold;">₹${totalAmount.toFixed(2)}</span>
+            </div>
+            <div style="display: none; justify-content: space-between; margin-bottom: 4px;">
+                <span><strong>Total Late Fine:</strong></span>
+                <span style="color: #c0392b; font-weight: bold;">₹${totalLateFine.toFixed(2)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span><strong>Total Receipts:</strong></span>
+                <span style="font-weight: bold;">${dataArray.length} nos</span>
+            </div>
         </div>
-        <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 10px;">
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 12px;">
     `;
     logBody.insertAdjacentHTML('beforeend', summaryHTML);
 
-    // 4. Baaki sabhi individual receipts ki details niche list me show karna
-    receiptsList.forEach((receipt, index) => {
+    // Saari individual receipts niche print karna
+    dataArray.forEach((receipt, index) => {
         const itemHTML = `
-            <div class="log-item" style="background: #fff; border: 1px solid #ddd; border-left: 4px solid #3498db; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-size: 12px;">
-                <strong>#${index + 1} Receipt:</strong> ${receipt.receiptNo || "N/A"}<br>
+            <div class="log-item" style="background: #fff; border: 1px solid #ddd; border-left: 4px solid #3498db; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-family: Arial, sans-serif; font-size: 12px; color: #333; line-height: 1.6;">
+                <strong>#${index + 1} Receipt No:</strong> ${receipt.receiptNo || "N/A"}<br>
                 <strong>Date:</strong> ${receipt.receiptDate || "N/A"}<br>
-                <strong>Amount:</strong> ₹${receipt.amount.toFixed(2)} | 
-                <strong>Fine:</strong> ₹${receipt.lateFine.toFixed(2)}<br>
-                <strong>Mode:</strong> ${receipt.paymentMode}
+                <strong>Amount:</strong> ₹${parseFloat(String(receipt.amount).replace(/[^0-9.-]/g, "")) || 0} | 
+                <strong>Fine:</strong> ₹${parseFloat(String(receipt.lateFine).replace(/[^0-9.-]/g, "")) || 0}<br>
+                <strong>Mode:</strong> <span style="color:#7f8c8d; font-style:italic;">${receipt.paymentMode || "Online Fee"}</span>
             </div>
         `;
         logBody.insertAdjacentHTML('beforeend', itemHTML);
     });
-}
 
 
   let tableBody = document.getElementById("tableBody");
@@ -1372,7 +1416,7 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
     }
 
     // Har baar naya check chalne par purane logs saaf (clear) karne ke liye
-    logBody.innerHTML = ""; 
+    
 
     const headers = [...table.querySelectorAll("thead th")].map(th => th.innerText.trim());
 

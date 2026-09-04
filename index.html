@@ -199,6 +199,13 @@ MONTHLY COMPOSITE FEE</textarea>
         </div>
  </div>
      </div>
+	<div id="fixed-log-container">
+    <div class="log-header">⚠️ Check Late Fine Manually</div>
+    <div id="log-content-body">
+        <!-- JavaScript se aane wali details yahan show hongi -->
+        <p style="color: #888; padding: 10px; font-size: 13px;">Koi logs nahi hain abhi. Check karne ke liye run karein.</p>
+    </div>
+</div>
         <div>
 
             
@@ -1267,21 +1274,26 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
     
 
  function checkLateFineManually() {
-
     const table = document.getElementById("myTable");
-
     if (!table) {
         console.log("myTable nahi mila.");
         return;
     }
 
-    const headers = [...table.querySelectorAll("thead th")]
-        .map(th => th.innerText.trim());
+    // 🔴 Fixed Div ka reference lena
+    const logBody = document.getElementById("log-content-body");
+    if (!logBody) {
+        console.log("Fixed log container element nahi mila.");
+        return;
+    }
+
+    // Har baar naya check chalne par purane logs saaf (clear) karne ke liye
+    logBody.innerHTML = ""; 
+
+    const headers = [...table.querySelectorAll("thead th")].map(th => th.innerText.trim());
 
     function getColumnIndex(columnName) {
-        return headers.findIndex(
-            h => h.toLowerCase() === columnName.toLowerCase()
-        );
+        return headers.findIndex(h => h.toLowerCase() === columnName.toLowerCase());
     }
 
     const paymentDateIndex = getColumnIndex("Fee Payment Date");
@@ -1289,44 +1301,25 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
     const balanceIndex = getColumnIndex("Fees Balance Amount");
     const periodIndex = getColumnIndex("Details (Period)");
 
-    if (
-        paymentDateIndex === -1 ||
-        receiptIndex === -1 ||
-        balanceIndex === -1
-    ) {
-        console.log("Required column nahi mila.");
+    if (paymentDateIndex === -1 || receiptIndex === -1 || balanceIndex === -1) {
+        logBody.innerHTML = `<p style="color:red; font-size:13px; padding:10px;">Required columns nahi mile.</p>`;
         return;
     }
 
     const rows = table.querySelectorAll("tbody tr");
+    let matchCount = 0; // Kitne records mile count karne ke liye
 
     rows.forEach((row, rowIndex) => {
-
         const cells = row.querySelectorAll("td");
-
         if (!cells.length) return;
 
-        // Cell ki actual value nikalne ka function
         function getCellValue(index) {
-
             const cell = cells[index];
-
             if (!cell) return "";
-
-            // Agar input hai
             const input = cell.querySelector("input");
-
-            if (input) {
-                return input.value.trim();
-            }
-
-            // Agar select hai
+            if (input) return input.value.trim();
             const select = cell.querySelector("select");
-
-            if (select) {
-                return select.value.trim();
-            }
-
+            if (select) return select.value.trim();
             return cell.innerText.trim();
         }
 
@@ -1334,50 +1327,43 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
         const receiptNo = getCellValue(receiptIndex);
         const balance = getCellValue(balanceIndex);
 
-        const period =
-            periodIndex !== -1
-                ? getCellValue(periodIndex)
-                : `Row ${rowIndex + 1}`;
+        const period = periodIndex !== -1 ? getCellValue(periodIndex) : `Row ${rowIndex + 1}`;
 
-        // "-", "--", "N/A", blank ko empty maana jayega
         function isEmptyValue(value) {
-
             value = value.trim().toLowerCase();
-
             return (
-                value === "" ||
-                value === "-" ||
-                value === "--" ||
-                value === "n/a" ||
-                value === "na" ||
-                value === "null" ||
-                value === "undefined"
+                value === "" || value === "-" || value === "--" || 
+                value === "n/a" || value === "na" || value === "null" || value === "undefined"
             );
         }
 
-        // ₹, comma etc. hata kar number nikalo
-        const balanceAmount =
-            parseFloat(
-                balance.replace(/[^0-9.-]/g, "")
-            ) || 0;
+        const balanceAmount = parseFloat(balance.replace(/[^0-9.-]/g, "")) || 0;
 
-        // CONDITION
-        if (
-            isEmptyValue(paymentDate) &&
-            isEmptyValue(receiptNo) &&
-            balanceAmount === 0
-        ) {
+        // CONDITION MATCH
+        if (isEmptyValue(paymentDate) && isEmptyValue(receiptNo) && balanceAmount === 0) {
+            matchCount++;
 
-            alert(
-                "⚠️ CHECK LATE FINE MANUALLY\n\n" +
-                "Period: " + period + "\n" +
-                "Fee Payment Date: " + paymentDate + "\n" +
-                "Fees Receipt No.: " + receiptNo + "\n" +
-                "Fees Balance Amount: " + balance
-            );
+            // 🔴 Alert ki jagah direct HTML div ke andar log item insert karna
+            const itemHTML = `
+                <div class="log-item">
+                    <strong>#${matchCount} Period:</strong> ${period}<br>
+                    <strong>Date:</strong> ${paymentDate || "N/A"}<br>
+                    <strong>Receipt No:</strong> ${receiptNo || "N/A"}<br>
+                    <strong>Balance:</strong> ${balance || "0"}
+                </div>
+            `;
+            
+            // Div ke andar ek ke baad ek log add hota jayega
+            logBody.insertAdjacentHTML('beforeend', itemHTML);
         }
     });
-}      
+
+    // Agar poore table me koi bhi match nahi mila
+    if (matchCount === 0) {
+        logBody.innerHTML = `<p style="color: green; padding: 10px; font-size: 13px;">✅ Sab sahi hai! Koi manually check karne wala record nahi mila.</p>`;
+    }
+}
+
 
 
     </script>

@@ -18,49 +18,72 @@
     th { position: relative; } 
 		
 		/* Fixed Container ki Styling */
+/* 1. Main Container Blueprint */
 #fixed-log-container {
-    
-    width: 35%;
-    max-height: 150px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 650px; /* Width thodi badhayein taaki flex side-by-side accha dikhe */
+    max-height: 85vh;
     background: #ffffff;
-    border: 2px solid #007bff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    font-family: Arial, sans-serif;
+    border: 2px solid #e74c3c;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    font-family: 'Segoe UI', Arial, sans-serif;
     display: flex;
-    flex-direction: column;
-    
+    flex-direction: column; /* Header top par rahega, wrapper bottom me */
+    z-index: 99999;
     overflow: hidden;
 }
 
-/* Header Styling */
+/* 2. Header Bar Styling */
 .log-header {
-    background: #007bff;
+    background: #e74c3c;
     color: white;
-    padding: 10px;
+    padding: 12px 16px;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    transition: background 0.3s ease;
 }
 
-/* Body jahan logs show honge (Scrollable) */
-#log-content-body {
+/* 3. Flex Container for Bodies */
+.log-flex-wrapper {
+    display: flex;
+    flex-direction: row; /* Dono blocks ko side-by-side alignment dega */
+    gap: 12px;           /* Dono columns ke beech ka gap */
+    padding: 12px;
+    background: #f8f9fa;
+    overflow: hidden;    /* Parent scroll block karega */
+}
+
+/* 4. Flex Children (Individual Blocks) */
+.flex-child {
+    flex: 1;             /* Dono sections ko barabar (50% - 50%) space milegi */
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
     padding: 10px;
-    overflow-y: auto;
-    max-height: 150px;
-    background: #fafafa;
+    max-height: 65vh;    /* Box ke andar scroll control */
+    overflow-y: auto;    /* Content zyada hone par scrollbar aayega */
 }
 
-/* Har ek individual log ki styling */
-.log-item {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-left: 4px solid #e74c3c;
-    padding: 8px;
-    margin-bottom: 8px;
-    border-radius: 4px;
+/* 5. Subheadings & Typography */
+.section-title {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 4px;
+}
+
+.empty-msg {
+    color: #a0aec0;
     font-size: 12px;
-    line-height: 1.5;
-    color: #333;
+    margin: 8px 0;
+    font-style: italic;
 }
 /* Table layout fix taaki dropdowns niche daba na rahein */
 table, #myTable {a

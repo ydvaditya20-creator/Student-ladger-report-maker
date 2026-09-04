@@ -399,18 +399,33 @@ function deleteAtColumn() {
        
 }
 
-    function toggleText() {
+    // 1. Pehle variable ko 'let' banayein taaki iski value change ho sake
+// Default mein hum 'Basahi' ya 'Natwa' ka url rakh sakte hain
+let baseUrl = "https://shemfordnatwa.edunext1.com"; 
+
+function toggleText() {
   var btn = document.getElementById("myToggleButton");
   btn.style.borderBottom = "2px solid black";
 
   if (btn.innerText === "Shemford School Basahi , Mirzapur") {
     btn.innerText = "Shemford School Natwa , Mirzapur";
+    
+    // 2. Jab button Natwa par switch ho, toh Natwa ka URL set karein
+    baseUrl = "https://shemfordnatwa.edunext1.com";
+    
   } else {
     btn.innerText = "Shemford School Basahi , Mirzapur";
+    
+    // 3. Jab button Basahi par switch ho, toh Basahi ka URL set karein
+    // (Aap apne hisab se Basahi ka exact subdomain/URL yahan daal dein)
+    baseUrl = "https://shemford.edunext1.com"; 
   }
+  
+  // Test karne ke liye aap console mein check kar sakte hain
+  console.log("Current Base URL changed to:", baseUrl);
 }
-    const myTextArea = document.getElementById('rawInput');
-const baseUrl = "https://shemfordnatwa.edunext1.com";
+
+const myTextArea = document.getElementById('rawInput');
 
 myTextArea.addEventListener('paste', function(e) {
     // 1. Sabse pehle clipboard se asli format wala plain text uthayein (jisme tabs/spaces bilkul safe hain)

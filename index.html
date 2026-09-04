@@ -1487,11 +1487,28 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
     });
 
     // Agar poore table me koi bhi match nahi mila
+    
+
+    // 🔴 1. Header element ka reference lena
+    const logHeader = document.querySelector(".log-header");
+
+    // Agar poore table me koi bhi match nahi mila (Sab sahi hai)
     if (matchCount === 0) {
         logBody.innerHTML = `<p style="color: green; padding: 10px; font-size: 13px;">✅ Sab sahi hai! Koi manually check karne wala record nahi mila.</p>`;
+        
+        // 🔴 Agar sab sahi hai toh Header ka rang GREEN (Hara) kar do
+        if (logHeader) {
+            logHeader.style.background = "#27ae60"; // Green color
+            logHeader.innerText = "✅ No Action Required";
+        }
+    } else {
+        // 🔴 Agar match mila hai toh Header ka rang RED (Laal) kar do
+        if (logHeader) {
+            logHeader.style.background = "#e74c3c"; // Red color
+            logHeader.innerText = `⚠️ Check Late Fine Manually (${matchCount})`;
+        }
     }
 }
-
 
 
     </script>

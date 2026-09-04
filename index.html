@@ -589,7 +589,7 @@ lines.forEach(line => {
 // --- RECEIPT DETAIL PROCESSING ---
 lines.forEach(line => {
 
-    if (/^N-\d{2}-\d+/.test(line) && line.includes("Print Receipt")) {
+    if (/^[A-Za-z]-\d{2}-\d+/.test(line) && line.includes("Print Receipt")) {
 
         let rParts = line.split('\t').map(p => p.trim());
 

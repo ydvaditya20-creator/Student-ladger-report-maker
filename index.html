@@ -1494,11 +1494,11 @@ const totalConcessionBox = document.getElementById("summary_total_concession");
 
     // Agar poore table me koi bhi match nahi mila (Sab sahi hai)
     if (matchCount === 0) {
-        logBody.innerHTML = `<p style="color: green; padding: 10px; font-size: 13px;">✅ Sab sahi hai! Koi manually check karne wala record nahi mila.</p>`;
+        logBody.innerHTML = `<p style="color: 007bff; padding: 10px; font-size: 13px;">✅ Sab sahi hai! Koi manually check karne wala record nahi mila.</p>`;
         
         // 🔴 Agar sab sahi hai toh Header ka rang GREEN (Hara) kar do
         if (logHeader) {
-            logHeader.style.background = "#27ae60"; // Green color
+            logHeader.style.background = "#007bff"; // Green color
             logHeader.innerText = "✅ No Action Required";
         }
     } else {

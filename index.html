@@ -6,7 +6,7 @@
         
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 30px; background-color: #f1f3f5; color: #212529; }
-        textarea { width: 100%; height: 25px;  padding: 12px; border: 2px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 13px; box-sizing: border-box; }
+        textarea { width: 100%; height: 40px;  padding: 12px; border: 2px solid #ced4da; border-radius: 6px; font-family: monospace; font-size: 13px; box-sizing: border-box; }
         button {background-color: #007bff;color: white;border-bottom:4px;border: none;padding: 12px 25px;font-size: 16px;font-weight: bold;cursor: pointer;border-radius: 6px;/* margin-top: 10px; */}
         button:hover { background-color: #007bff; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
@@ -20,20 +20,32 @@
 		/* Fixed Container ki Styling */
 /* 1. Main Container Blueprint */
 #fixed-log-container {
+    width: 100%; 
     
-    width: 100%; /* Width thodi badhayein taaki flex side-by-side accha dikhe */
-    max-height: 170px;
+    /* 1. बदलावा: max-height को बदलकर फिक्स height दी */
+    height: 170px; 
+    
+    /* 2. बदलाव: min-height दी ताकि ड्रैग करते समय यह बहुत छोटा न हो जाए */
+    min-height: 100px; 
+    
+    /* 3. बदलाव: max-height को थोड़ा बढ़ा दिया ताकि यूजर इसे नीचे खींचकर बड़ा कर सके */
+    max-height: 500px; 
+
     background: #ffffff;
     border: 2px solid #007bff;
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     font-family: 'Segoe UI', Arial, sans-serif;
     display: flex;
-    flex-direction: column; /* Header top par rahega, wrapper bottom me */
+    flex-direction: column; 
     z-index: 99999;
-	resize: vertical;
-   overflow: auto;
+    
+    /* यह अब 100% ऊपर-नीचे ड्रैग होगा */
+    resize: vertical;
+    overflow: auto;
+    flex-shrink: 0;
 }
+
 
 /* 2. Header Bar Styling */
 .log-header {

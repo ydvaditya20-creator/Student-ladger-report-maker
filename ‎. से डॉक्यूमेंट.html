@@ -1,0 +1,1666 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Receipt Detail</title>
+
+  <style>
+/* ==========================
+   Global Reset
+=========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    background: #f3f6fb;
+    color: #1f2937;
+}
+
+
+/* ==========================
+   Fixed Sidebar
+=========================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 180px;
+    height: 100vh;
+    background: linear-gradient(180deg,#111827,#1f2937);
+    padding: 2px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+
+.sidebar-box {
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 14px;
+    color: white;
+}
+
+
+.sidebar-box h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+
+
+/* ==========================
+   Application Wrapper
+=========================== */
+
+.app {
+    margin-left: 10px;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 25px;
+}
+
+
+
+/* ==========================
+   Main Content
+=========================== */
+
+.main-content {
+    max-width: 1600px;
+    margin:auto;
+}
+
+
+
+/* ==========================
+   Header
+=========================== */
+
+.page-header {
+    background: white;
+    padding: 15px;
+    border-radius: 16px;
+    margin-bottom: 2px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+
+
+.page-header h1 {
+    font-size: 28px;
+    color:#111827;
+}
+
+
+.page-header p {
+    margin-top:8px;
+    color:#6b7280;
+}
+
+
+
+/* ==========================
+   Card
+=========================== */
+
+.card {
+    background:white;
+    padding:15px;
+    border-radius:16px;
+	margin-top:2px;
+    margin-bottom:2px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+
+
+.card h2 {
+    margin-bottom:18px;
+    font-size:20px;
+}
+
+
+
+/* ==========================
+   Upload Toolbar
+=========================== */
+
+.toolbar {
+    display:flex;
+    gap:15px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+
+input[type="file"] {
+
+    background:#f9fafb;
+    border:1px solid #d1d5db;
+    padding:10px;
+    border-radius:8px;
+}
+
+
+
+/* Buttons */
+
+.btn {
+    border:none;
+    padding:10px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    transition:.2s;
+}
+
+
+.btn-primary {
+    background:#2563eb;
+    color:white;
+}
+
+
+.btn-primary:hover {
+    background:#1d4ed8;
+}
+
+
+.btn-secondary {
+    background:#ef4444;
+    color:white;
+}
+
+
+.btn-secondary:hover {
+    background:#dc2626;
+}
+
+
+
+/* ==========================
+   Summary Cards
+=========================== */
+
+.summary-grid {
+
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(320px,1fr));
+
+    gap:20px;
+
+}
+
+
+.summary-card {
+
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+
+}
+
+
+.summary-card h3 {
+
+    margin-bottom:15px;
+    color:#2563eb;
+
+}
+
+
+
+/* ==========================
+   Summary Table
+=========================== */
+
+.summary-table {
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+
+.summary-table th,
+.summary-table td {
+
+    padding:10px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+
+}
+
+
+.summary-table td {
+
+    text-align:right;
+
+}
+
+
+.summary-table .grand {
+
+    background:#eff6ff;
+    font-weight:bold;
+
+}
+
+
+
+/* ==========================
+   Data Table
+=========================== */
+
+.table-wrapper {
+
+    width:100%;
+    overflow:auto;
+    position:relative;
+
+}
+
+
+#detailTable {
+
+    width:max-content;
+    min-width:100%;
+    border-collapse:collapse;
+
+}
+
+
+#detailTable th {
+
+    position:sticky;
+    top:0;
+    background:#1e40af;
+    color:white;
+    padding:12px;
+    white-space:nowrap;
+    z-index:5;
+
+}
+
+
+#detailTable td {
+
+    padding:10px;
+    border-bottom:1px solid #e5e7eb;
+    white-space:nowrap;
+
+}
+
+
+#detailTable tr:hover {
+
+    background:#f8fafc;
+
+}
+
+
+
+/* ==========================
+   Filter Popup
+=========================== */
+
+.filterPopup {
+
+    position:absolute;
+    top:50px;
+    right:20px;
+    width:280px;
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 10px 35px rgba(0,0,0,.2);
+    z-index:20;
+
+}
+
+
+.filterTitle {
+
+    font-weight:bold;
+    margin-bottom:10px;
+
+}
+/* Header background when filter applied */
+.filterHeaderActive{
+    background:#ffe58a !important;
+	color:#333 !important;
+}
+/* Active filter column */
+.filterActive{
+    color:red !important;
+    font-weight:bold;
+}
+#filterSearch {
+
+    width:100%;
+    padding:8px;
+    margin-bottom:10px;
+    border:1px solid #ddd;
+    border-radius:6px;
+
+}
+
+
+.filterValues {
+
+    max-height:220px;
+    overflow:auto;
+}
+
+
+.filterBtns {
+
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:15px;
+
+}
+
+
+.filterBtns button {
+
+    padding:8px 15px;
+    border:none;
+    border-radius:6px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+
+}
+#filters input[type="text"]{
+    cursor: default;
+}
+.zoom-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:3px 2px;
+    background:#ffffff;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    width:fit-content;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+.zoom-btn{
+    min-width:35px;
+    height:30px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:#fff;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.zoom-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+    box-shadow:0 4px 10px rgba(37,99,235,.3);
+}
+
+.zoom-btn:active{
+    transform:scale(.95);
+}
+
+.reset-btn{
+    min-width:70px;
+    font-size:14px;
+    background:#eb032e;
+}
+
+.reset-btn:hover{
+    background:#eb032e;
+}
+
+
+/* ==========================
+   Scrollbar Design
+=========================== */
+
+.app::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar,
+.table-wrapper::-webkit-scrollbar {
+
+    width:8px;
+    height:8px;
+
+}
+
+
+.app::-webkit-scrollbar-thumb,
+.sidebar::-webkit-scrollbar-thumb,
+.table-wrapper::-webkit-scrollbar-thumb {
+
+    background:#9ca3af;
+    border-radius:10px;
+
+}
+
+
+
+/* ==========================
+   Responsive
+=========================== */
+
+@media(max-width:900px){
+
+    .sidebar {
+
+        width:80px;
+
+    }
+
+
+    .app {
+
+        margin-left:80px;
+
+    }
+
+
+    .sidebar-box h3 {
+
+        font-size:0;
+
+    }
+
+}
+</style>
+</head>
+
+<body>
+ <!-- ==========================
+     Sidebar
+=========================== -->
+
+<div class="sidebar" id="sidebar" style = "display:none;">
+    <div class="sidebar-box">
+        <h3>Filter / Hide Columns</h3>
+
+        <div id="tableControls">
+            <div id="filters"></div>
+        </div>
+    </div>
+	<div class="zoom-controls">
+    <button class="zoom-btn" onclick="zoomOut()">−</button>
+    <button class="zoom-btn reset-btn" onclick="resetZoom()">100%</button>
+    <button class="zoom-btn" onclick="zoomIn()">+</button>
+</div>
+</div>
+
+
+<!-- ==========================
+     Application Wrapper
+=========================== -->
+
+<div class="app">
+
+
+    <!-- ==========================
+         Main Content
+    =========================== -->
+
+    <main class="main-content">
+
+
+        <!-- Header -->
+        <header class="page-header">
+            <div>
+                <h1>Fee Receipt Detail</h1>
+
+                <p>
+                    Upload PDF and generate complete fee receipt report.
+                </p>
+            </div>
+        </header>
+
+
+
+        <!-- ==========================
+             Upload Section
+        =========================== -->
+
+        <section class="card">
+
+            <h2>Upload PDF</h2>
+
+            <div class="toolbar">
+
+                <input
+                    id="fileInput"
+                    type="file"
+                    accept="application/pdf"
+                >
+
+                <button
+                    id="parseBtn"
+                    class="btn btn-primary">
+                    Parse PDF
+                </button>
+
+
+                <button
+                    id="clearBtn"
+                    type="button"
+                    class="btn btn-secondary">
+                    Clear
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================
+             Summary Section
+        =========================== -->
+
+        <section class="summary-grid">
+
+
+            <!-- Cash Summary -->
+
+            <div
+                id="cashTotals"
+                class="summary-card"
+                style="display:none;">
+
+                <h3>Cash Totals</h3>
+
+                <table class="summary-table">
+
+                    <tbody>
+
+                        <tr>
+                            <th>Monthly Fees</th>
+                            <td id="cashMonthly">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Transport</th>
+                            <td id="cashTransport">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Late Fees</th>
+                            <td id="cashLate">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Processing Fees</th>
+                            <td id="cashProcessing">₹0.00</td>
+                        </tr>
+
+                        <tr class="grand">
+                            <th>Grand Total</th>
+                            <td id="cashGrand">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Receipt Count</th>
+                            <td id="cashCount">0</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+
+
+            <!-- Online Summary -->
+
+            <div
+                id="onlineTotals"
+                class="summary-card"
+                style="display:none;">
+
+                <h3>Online Totals</h3>
+
+                <table class="summary-table">
+
+                    <tbody>
+
+                        <tr>
+                            <th>Monthly Fees</th>
+                            <td id="onlineMonthly">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Transport</th>
+                            <td id="onlineTransport">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Late Fees</th>
+                            <td id="onlineLate">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Processing Fees</th>
+                            <td id="onlineProcessing">₹0.00</td>
+                        </tr>
+
+                        <tr class="grand">
+                            <th>Grand Total</th>
+                            <td id="onlineGrand">₹0.00</td>
+                        </tr>
+
+                        <tr>
+                            <th>Receipt Count</th>
+                            <td id="onlineCount">0</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        </section>
+
+
+
+
+        <!-- ==========================
+             Result Section
+        =========================== -->
+           
+        <section
+            id="resultArea"
+            class="card"
+            style="display:none;">
+                
+
+            <div class="table-header">
+
+                <h2>Receipt Details</h2>
+
+            </div>
+
+
+
+            <!-- Table Wrapper -->
+
+            <div class="table-wrapper">
+                    
+                <table id="detailTable">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Rec No</th>
+                            <th>Date</th>
+                            <th>Adm No.</th>
+                            <th>Name</th>
+                            <th>Class</th>
+                            <th>Father Name</th>
+                            <th>Mother Name</th>
+                            <th>Mobile No.</th>
+                            <th>Student Type</th>
+                            <th>Fee Month</th>
+                            <th>Pay Mode</th>
+                            <th>Monthly Fee</th>
+                            <th>Transport</th>
+                            <th>Late Fee</th>
+                            <th>Processing Fee</th>
+                            <th>Payable</th>
+                            <th>Paid</th>
+                            <th>Total (Paid)</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    </tbody>
+
+
+                </table>
+
+
+
+                <!-- ==========================
+                     Filter Popup
+                =========================== -->
+
+                <div
+                    id="excelFilter"
+                    class="filterPopup">
+
+
+                    <div
+                        id="filterTitle"
+                        class="filterTitle">
+
+                        Filter
+
+                    </div>
+
+
+                    <input
+                        type="text"
+                        id="filterSearch"
+                        placeholder="Search..."
+                    >
+
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            id="filterAll"
+                            checked
+                        >
+
+                        Select All
+
+                    </label>
+
+
+                    <hr>
+
+
+                    <div
+                        id="filterValues"
+                        class="filterValues">
+
+                    </div>
+
+
+
+                    <div class="filterBtns">
+
+                        <button id="btnApply">
+                            Apply
+                        </button>
+
+
+                        <button id="btnClear">
+                            Clear
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+
+            <!-- Raw Text -->
+
+          
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+const fileInput = document.getElementById('fileInput');
+const parseBtn = document.getElementById('parseBtn');
+const clearBtn = document.getElementById('clearBtn');
+const resultArea = document.getElementById('resultArea');
+const rawTextEl = document.getElementById('rawText');
+const detailTableBody = document.querySelector('#detailTable tbody');
+
+const cashDiv = document.getElementById('cashTotals');
+const onlineDiv = document.getElementById('onlineTotals');
+const cashMonthly = document.getElementById('cashMonthly');
+const cashTransport = document.getElementById('cashTransport');
+const cashLate = document.getElementById('cashLate');
+const cashProcessing = document.getElementById('cashProcessing');
+const onlineProcessing = document.getElementById('onlineProcessing');
+
+  // Function ke upar jahan baaki elements get kar rahe hain
+const cashCountEl = document.getElementById('cashCount');
+const onlineCountEl = document.getElementById('onlineCount');
+
+
+  const cashGrand = document.getElementById('cashGrand');
+const onlineMonthly = document.getElementById('onlineMonthly');
+const onlineTransport = document.getElementById('onlineTransport');
+const onlineLate = document.getElementById('onlineLate');
+const onlineGrand = document.getElementById('onlineGrand');
+
+parseBtn.onclick = async () => {
+  const f = fileInput.files[0];
+  if (!f) { alert('Choose PDF'); return; }
+
+  detailTableBody.innerHTML = '';
+  
+  cashDiv.style.display = onlineDiv.style.display = 'none';
+  
+  
+
+  const pdf = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
+  let text = '';
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const p = await pdf.getPage(i);
+    const c = await p.getTextContent();
+    text += c.items.map(it => it.str).join(' ') + '\n';
+  }
+
+  
+  processReceipts(text);
+  resultArea.style.display = 'block';
+  document.querySelector(".app").style.marginLeft = "160px";
+  document.getElementById("sidebar").style.display = "block";
+  
+};
+
+
+document.getElementById("clearBtn").addEventListener("click", function () {
+    
+    window.location.reload();
+});
+
+
+function processReceipts(text) {
+  const clean = text.replace(/\s+/g, ' ');
+  const blocks = clean.split(/(?=Rec\s*No\.?:)/gi);
+  const processed = new Set();
+
+// processReceipts function ke shuru mein totals zero karte waqt
+let cCount = 0, oCount = 0; // Naye counters
+let cM = 0, cT = 0, cL = 0, cP = 0;
+let oM = 0, oT = 0, oL = 0, oP = 0;
+
+  for (let b of blocks) {
+    let rec = '';
+
+    const recLine = (b.match(/Rec\s*No\.?:\s*([^\n\r]+)/i) || ['', ''])[1];
+    const recMatch = recLine.match(/[A-Z0-9\/-]+/i);
+    if(recMatch) rec = recMatch[0];
+    if (!rec || processed.has(rec)) continue;
+    processed.add(rec);
+
+    const name = ((b.match(/Name\s*:\s*([A-Za-z .]+)/i) || ['', ''])[1])
+  .replace(/Class|Father|Mother|Mobile|Adm\s*No\.?|Student\s*Type/ig,'')
+  .trim();
+
+const admNo = ((b.match(/Adm\s*No\.?\s*:\s*([A-Z0-9\/-]+)/i) || ['', ''])[1])
+  .replace(/Class|Father|Mother|Mobile|Name|Student\s*Type/ig,'')
+  .trim();
+
+const father = ((b.match(/Father\s*Name\s*:\s*([A-Za-z .]+)/i) || ['', ''])[1])
+  .replace(/Mother\s*Name|Mobile\s*No\.?|Class|Adm\s*No\.?|Student\s*Type/ig,'')
+  .trim();
+
+const mother = ((b.match(/Mother\s*Name\s*:\s*([A-Za-z .]+)/i) || ['', ''])[1])
+  .replace(/Mobile\s*No\.?|Class|Adm\s*No\.?|Father\s*Name|Student\s*Type/ig,'')
+  .trim();
+
+const mobile = ((b.match(/Mobile\s*No\.?\s*:\s*([0-9]{10})/i) || ['', ''])[1] || '')
+  .replace(/\D/g,'')
+  .slice(0,10);
+
+const cls = ((b.match(/Class\s*:\s*([A-Za-z0-9 -]+)/i) || ['', ''])[1])
+  .replace(/Adm\s*No\.?|Father\s*Name|Mother\s*Name|Mobile\s*No\.?|Student\s*Type/ig,'')
+  .trim();
+
+const stType = ((b.match(/Student\s*Type\s*:\s*([A-Za-z .]+)/i) || ['', ''])[1])
+  .replace(/Father\s*Name|Mother\s*Name|Mobile\s*No\.?|Class|Adm\s*No\.?/ig,'')
+  .trim();
+    
+
+    let modeRaw = (b.match(/Pay\s*Mode\s*:\s*([A-Za-z ]+)/i) || ['', 'N/A'])[1];
+    let mode = modeRaw.replace(/fee/ig,'').replace(/cheque.*/ig,'').trim();
+    if (mode.toLowerCase().includes('online')) mode = 'Online';
+    else if (mode.toLowerCase().includes('cash')) mode = 'Cash';
+
+    const date = (b.match(/Date\s*:?[\s]*([0-9]{1,2}[-\/][0-9]{1,2}[-\/][0-9]{2,4})/i) || ['', ''])[1];
+
+    const lineRegex = /((Monthly\s*Composite\s*Fees|Transport\s*Charge|Late\s*Fee|PROCESSING\s*FEES)\s*(?:\([^)]+\))?)[^₹\d]*₹?\s*([\d,]+\.\d{2})[^\d₹]+₹?\s*([\d,]+\.\d{2})/gi;
+
+    let mPay=0,mPaid=0,tPay=0,pPay=0,tPaid=0,lPay=0,lPaid=0,pPaid=0;
+    let months = new Set();
+
+    for (const match of b.matchAll(lineRegex)) {
+      const type = match[2].toLowerCase();
+      const payable = parseFloat(match[3].replace(/,/g,'')) || 0;
+      const paid = parseFloat(match[4].replace(/,/g,'')) || 0;
+
+      const monthMatch = match[1].match(/\(([^)]+)\)/);
+      if (monthMatch) months.add(monthMatch[1].trim());
+
+      if (type.includes('monthly')) { mPay+=payable; mPaid+=paid; }
+      else if (type.includes('transport')) { tPay+=payable; tPaid+=paid; }
+      else if (type.includes('late')) { lPay+=payable; lPaid+=paid; }
+      else if (type.includes('processing')) { pPay+=payable; pPaid+=paid; }
+
+    }
+
+    const payTotal = mPay + tPay + lPay + pPay;
+    const paidTotal = mPaid + tPaid + lPaid + pPaid;
+    if (paidTotal === 0 && payTotal === 0) continue;
+
+    const monthText = months.size ? Array.from(months).join(', ') : '';
+
+   if (mode === 'Cash') {
+    cCount++; // Cash receipt count badhayein
+    cM += mPaid; cT += tPaid; cL += lPaid; cP += pPaid;
+} else if (mode === 'Online') {
+    oCount++; // Online receipt count badhayein
+    oM += mPaid; oT += tPaid; oL += lPaid; oP += pPaid;
+}
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${rec}</td>
+      <td>${date}</td>
+      <td>${admNo}</td>
+      <td>${name}</td>
+      <td>${cls}</td>
+      <td>${father}</td>
+      <td>${mother}</td>
+      <td>${mobile}</td>
+      <td>${stType}</td>
+      <td>${monthText}</td>
+      <td>${mode}</td>
+      <td>${mPaid.toFixed(2)}</td>
+      <td>${tPaid.toFixed(2)}</td>
+      <td>${lPaid.toFixed(2)}</td>
+      <td>${pPaid.toFixed(2)}</td>
+      
+      <td>${payTotal.toFixed(2)}</td>
+      <td>${paidTotal.toFixed(2)}</td>
+      <td style="background-color:#B8E8FF;"><b>${paidTotal.toFixed(2)}</b></td>
+    `;
+    detailTableBody.appendChild(tr);
+    
+  }
+
+  calculateTotalsFromTable();
+  addTableGrandTotal();
+  initTableControls();
+ // Call to update non-zero counts after table rows are populated
+  updateNonZeroCounts();
+  initFilters();
+  // Cash Totals update karein
+  if (cCount > 0) {
+    cashDiv.style.display = 'block';
+    document.getElementById('cashCount').innerText = cCount; // Count dikhayega
+  }
+
+  // Online Totals update karein
+  if (oCount > 0) {
+    onlineDiv.style.display = 'block';
+    document.getElementById('onlineCount').innerText = oCount; // Count dikhayega
+  }}
+
+function calculateTotalsFromTable() {
+  let cash={m:0,t:0,l:0,p:0}, online={m:0,t:0,l:0,p:0};
+  document.querySelectorAll('#detailTable tbody tr').forEach(r=>{
+    const mode=r.cells[10].textContent.toLowerCase();
+    const m=parseFloat(r.cells[11].textContent.replace(/[₹,]/g,''))||0;
+    const t=parseFloat(r.cells[12].textContent.replace(/[₹,]/g,''))||0;
+    const l=parseFloat(r.cells[13].textContent.replace(/[₹,]/g,''))||0;
+    const p=parseFloat(r.cells[14].textContent.replace(/[₹,]/g,''))||0;
+
+    if(mode.includes('cash')){cash.m+=m;cash.t+=t;cash.l+=l;cash.p+=p}
+    else if(mode.includes('online')){online.m+=m;online.t+=t;online.l+=l;online.p+=p}
+  });
+  showTotals(cashDiv,cashMonthly,cashTransport,cashLate,cashProcessing,cashGrand,cash);
+  showTotals(onlineDiv,onlineMonthly,onlineTransport,onlineLate,onlineProcessing,onlineGrand,online);
+}
+
+function showTotals(div,mEl,tEl,lEl,pEl,gEl,obj){
+  const tot=obj.m+obj.t+obj.l+obj.p;
+  if(tot<=0) return;
+  mEl.textContent=`${obj.m.toFixed(2)}`;
+  tEl.textContent=`${obj.t.toFixed(2)}`;
+  lEl.textContent=`${obj.l.toFixed(2)}`;
+  pEl.textContent=`${obj.p.toFixed(2)}`;
+
+  gEl.innerHTML=`<b>${tot.toFixed(2)}</b>`;
+  div.style.display='block';
+}
+
+function addTableGrandTotal(){
+  const tbody = document.querySelector('#detailTable tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.id !== 'tableGrandTotal');
+
+  let m=0, t=0, l=0,p=0, pay=0, paidCol=0, paidTotal=0;
+
+  rows.forEach(r=>{
+    m += parseFloat(r.cells[11].textContent.replace(/[₹,]/g,'')) || 0;
+    t += parseFloat(r.cells[12].textContent.replace(/[₹,]/g,'')) || 0;
+    l += parseFloat(r.cells[13].textContent.replace(/[₹,]/g,'')) || 0;
+    p += parseFloat(r.cells[14].textContent.replace(/[₹,]/g,'')) || 0;
+ 
+    
+    pay += parseFloat(r.cells[15].textContent.replace(/[₹,]/g,'')) || 0;
+    paidCol += parseFloat(r.cells[16].textContent.replace(/[₹,]/g,'')) || 0;
+    paidTotal += parseFloat(r.cells[17].textContent.replace(/[₹,]/g,'')) || 0;
+  });
+
+  const old = document.getElementById('tableGrandTotal');
+  if(old) old.remove();
+
+  const tr = document.createElement('tr');
+  tr.id = 'tableGrandTotal';
+  tr.style.fontWeight = 'bold';
+  tr.innerHTML = `
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td style="background-color:#B8E8FF;"></td>
+    <td colspan="0" style="background-color:#B8E8FF;font-size:18px;">TOTAL</td>
+  
+    <td style="background-color:#B8E8FF;">${m.toFixed(2)}</td>
+    <td style="background-color:#B8E8FF;">${t.toFixed(2)}</td>
+    <td style="background-color:#B8E8FF;">${l.toFixed(2)}</td>
+    <td style="background-color:#B8E8FF;">${p.toFixed(2)}</td>
+  
+    <td style="background-color:#FEAD5D;">${pay.toFixed(2)}</td>
+    <td style="background-color:#FEAD5D;">${paidCol.toFixed(2)}</td>
+    <td style="background-color:#FEAD5D;">${paidTotal.toFixed(2)}</td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function initTableControls(){
+  const filtersDiv = document.getElementById('filters');
+  filtersDiv.innerHTML = '';
+
+  const ths = document.querySelectorAll('#detailTable thead th');
+   
+  ths.forEach((th, idx) => {
+
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.alignItems = 'center';
+    wrap.style.gap = '4px';
+
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = true;
+    chk.className = 'hideChk';
+    chk.onchange = () => toggleColumn(idx, chk.checked);
+
+    const lbl = document.createElement('span');
+    lbl.textContent = th.textContent;
+
+    // Input filter hata diya
+
+    wrap.appendChild(chk);
+    wrap.appendChild(lbl);
+
+    filtersDiv.appendChild(wrap);
+  });
+}
+
+
+function toggleColumn(colIndex, show){
+  document.querySelectorAll('#detailTable tr').forEach(tr=>{
+    if(tr.cells[colIndex]){
+      tr.cells[colIndex].style.display = show ? '' : 'none';
+    }
+  });
+}
+
+
+function filterTable() {
+    const inputs = document.querySelectorAll('#filters input[type="text"]');
+    const rows = document.querySelectorAll('#detailTable tbody tr');
+
+    rows.forEach(row => {
+
+        if(row.id=="tableGrandTotal") return;
+        if(row.id=="nonZeroCountRow") return;
+
+        let show = true;
+
+        inputs.forEach((inp, idx) => {
+
+            const val = inp.value.trim().toLowerCase();
+
+            if (!val) return;
+
+            const cell = row.cells[idx];
+
+            if (cell && !cell.textContent.toLowerCase().includes(val)) {
+                show = false;
+            }
+
+        });
+
+        row.style.display = show ? "" : "none";
+
+    });
+
+    updateFilteredTotal();
+    updateNonZeroCounts();   // <-- Ye zaruri hai
+}
+function filterable(){
+  const inputs = document.querySelectorAll('#filters input[type="text"]');
+  const rows = document.querySelectorAll('#detailTable tbody tr');
+
+  rows.forEach(row=>{
+    let show = true;
+    inputs.forEach((inp, idx)=>{
+      const val = inp.value.trim().toLowerCase();
+      if(!val) return;
+      const cell = row.cells[idx];
+      if(cell && !cell.textContent.toLowerCase().includes(val)){
+        show = false;
+      }
+    });
+    row.style.display = show ? '' : 'none';
+  });
+}
+function countNonZeroValues() {
+  let nonZeroCounts = {
+    m: 0, // Monthly Fee
+    t: 0, // Transport
+    l: 0, // Late Fee
+    p: 0, // Processing Fee
+    pay: 0, // Payable
+    paid: 0, // Paid
+    total: 0 // Total (Paid)
+	
+  };
+
+  document.querySelectorAll('#detailTable tbody tr').forEach(r => {
+    
+	
+	  // hidden row ko count nahi karna
+    if(r.style.display === "none") return;
+
+    // total aur count row ko ignore karna
+    if(r.id=="tableGrandTotal") return;
+    if(r.id=="nonZeroCountRow") return;
+	// Get numeric values and make sure we are handling them correctly
+     
+	const m = parseFloat(r.cells[11].textContent.replace(/[₹,]/g, '')) || 0;
+    const t = parseFloat(r.cells[12].textContent.replace(/[₹,]/g, '')) || 0;
+    const l = parseFloat(r.cells[13].textContent.replace(/[₹,]/g, '')) || 0;
+    const p = parseFloat(r.cells[14].textContent.replace(/[₹,]/g, '')) || 0;
+    const pay = parseFloat(r.cells[15].textContent.replace(/[₹,]/g, '')) || 0;
+    const paid = parseFloat(r.cells[16].textContent.replace(/[₹,]/g, '')) || 0;
+    const total = parseFloat(r.cells[17].textContent.replace(/[₹,]/g, '')) || 0;
+     
+    // Count non-zero values
+	
+    if (m > 0) nonZeroCounts.m++;
+    if (t > 0) nonZeroCounts.t++;
+    if (l > 0) nonZeroCounts.l++;
+    if (p > 0) nonZeroCounts.p++;
+    if (pay > 0) nonZeroCounts.pay++;
+    if (paid > 0) nonZeroCounts.paid++;
+    if (total > 0) nonZeroCounts.total++;
+	
+  });
+
+  return nonZeroCounts;
+}
+function updateNonZeroCounts() {
+  const old=document.getElementById("nonZeroCountRow");
+
+   if(old){
+       old.remove();
+   }
+  const nonZeroCounts = countNonZeroValues();
+
+  // Debugging: Print non-zero counts to console
+  console.log(nonZeroCounts);
+
+  // Create a new row for non-zero counts
+  const nonZeroRow = document.createElement('tr');
+  nonZeroRow.id = "nonZeroCountRow";
+ 
+  nonZeroRow.innerHTML = `
+    <td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+	<td style="background-color:#FFED8A;"></td>
+    <td style="background-color:#FFED8A; text-align:right; font-weight: bold;"></td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.m> 0 ? nonZeroCounts.m : 0}</td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.t> 0 ? nonZeroCounts.t : 0}</td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.l> 0 ? nonZeroCounts.l : 0}</td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.p > 0 ? nonZeroCounts.p : 0}</td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.pay > 0 ? nonZeroCounts.pay : 0}</td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.paid > 0 ? nonZeroCounts.paid : 0}</td>
+    <td style="background-color:#FFED8A;">${nonZeroCounts.total > 0 ? nonZeroCounts.total : 0}</td>
+  `;
+
+  // Append the non-zero counts row to the table
+  const tbody = document.querySelector('#detailTable tbody');
+  tbody.appendChild(nonZeroRow);
+  const checks = document.querySelectorAll(".hideChk");
+const countRow = document.getElementById("nonZeroCountRow");
+
+checks.forEach((chk, i) => {
+    if (countRow.cells[i]) {
+        countRow.cells[i].style.display = chk.checked ? "" : "none";
+    }
+});
+}
+//============================
+// CUSTOM TABLE FILTER
+//============================
+
+let currentColumn = -1;
+let uniqueValues = [];
+let filterData = {};
+
+const popup = document.getElementById("excelFilter");
+const valuesDiv = document.getElementById("filterValues");
+const searchBox = document.getElementById("filterSearch");
+const selectAll = document.getElementById("filterAll");
+
+function initFilters(){
+
+    const headers = document.querySelectorAll("#detailTable thead th");
+
+    headers.forEach((th,index)=>{
+
+        let btn = th.querySelector(".filterIcon");
+
+        if(!btn){
+
+            btn = document.createElement("span");
+
+            btn.className="filterIcon";
+
+            btn.innerHTML=" ▼";
+
+            th.appendChild(btn);
+
+        }
+
+        btn.onclick=function(e){
+
+            e.stopPropagation();
+
+            currentColumn=index;
+
+            buildFilterList(index);
+			 let title = document.getElementById("filterTitle");
+
+             title.innerHTML = th.innerText.replace("▼","").trim();
+             let rect = btn.getBoundingClientRect();
+
+
+            popup.style.display="block";
+
+
+           let wrapper = document.querySelector(".table-wrapper");
+
+           let ret = btn.getBoundingClientRect();
+			let wrapRect = wrapper.getBoundingClientRect();
+
+
+           popup.style.left =
+			(ret.left - wrapRect.left + wrapper.scrollLeft) + "px";
+
+
+          popup.style.top =
+			(ret.bottom - wrapRect.top + wrapper.scrollTop) + "px";
+        }
+
+    });
+
+}
+
+
+function buildFilterList(col){
+
+    uniqueValues=[];
+
+    const rows=document.querySelectorAll("#detailTable tbody tr");
+
+    rows.forEach(r=>{
+
+        if(r.id=="tableGrandTotal") return;
+
+        if(r.cells.length==0) return;
+
+        let value=r.cells[col].innerText.trim();
+
+        uniqueValues.push(value);
+
+    });
+
+    uniqueValues=[...new Set(uniqueValues)].sort();
+
+    showValues(uniqueValues);
+
+}
+
+
+function showValues(list){
+
+    valuesDiv.innerHTML="";
+
+    list.forEach(v=>{
+
+        let checked="checked";
+
+        if(filterData[currentColumn]){
+
+            checked=filterData[currentColumn].includes(v)?"checked":"";
+
+        }
+
+        valuesDiv.innerHTML+=`
+
+<label>
+
+<input type="checkbox"
+
+class="filterItem"
+
+value="${v}"
+
+${checked}>
+
+${v}
+
+</label>
+
+<br>
+
+`;
+
+    });
+
+}
+
+
+searchBox.onkeyup=function(){
+
+    const txt=this.value.toLowerCase();
+
+    const arr=uniqueValues.filter(v=>{
+
+        return v.toLowerCase().includes(txt);
+
+    });
+
+    showValues(arr);
+
+}
+
+
+selectAll.onchange=function(){
+
+    document.querySelectorAll(".filterItem").forEach(c=>{
+
+        c.checked=this.checked;
+
+    });
+
+}
+
+
+document.getElementById("btnApply").onclick=function(){
+
+    const selected=[];
+
+    document.querySelectorAll(".filterItem:checked").forEach(c=>{
+
+        selected.push(c.value);
+
+    });
+
+
+    // filter save
+    filterData[currentColumn]=selected;
+
+
+    // active colour update
+    updateFilterStatus();
+
+
+    applyFilters();
+
+    popup.style.display="none";
+
+}
+function updateFilterStatus(){
+
+    const headers=document.querySelectorAll("#detailTable thead th");
+
+
+    headers.forEach((th,index)=>{
+
+        const icon=th.querySelector(".filterIcon");
+
+
+        if(filterData[index] && filterData[index].length > 0){
+
+            icon.classList.add("filterActive");
+
+            th.classList.add("filterHeaderActive");
+
+        }
+        else{
+
+            if(icon)
+            icon.classList.remove("filterActive");
+
+
+            th.classList.remove("filterHeaderActive");
+
+        }
+
+    });
+
+}
+
+document.getElementById("btnClear").onclick=function(){
+
+    delete filterData[currentColumn];
+
+
+    updateFilterStatus();
+
+
+    applyFilters();
+	
+	
+	
+
+    popup.style.display="none";
+
+}
+
+
+function applyFilters(){
+
+    const rows=document.querySelectorAll("#detailTable tbody tr");
+
+    rows.forEach(r=>{
+
+        if(r.id=="tableGrandTotal") return;
+        if (r.cells.length == 0) return;
+       
+
+        let show=true;
+
+        for(let col in filterData){
+
+            let value=r.cells[col].innerText.trim();
+
+            if(filterData[col].length){
+
+                if(!filterData[col].includes(value)){
+
+                    show=false;
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+        r.style.display=show?"":"none";
+
+    });
+  updateFilteredTotal();
+  updateNonZeroCounts();
+ 
+}
+function updateFilteredTotal(){
+
+    let m=0;
+    let t=0;
+    let l=0;
+    let p=0;
+    let pay=0;
+    let paid=0;
+    let total=0;
+
+
+    document.querySelectorAll("#detailTable tbody tr").forEach(r=>{
+
+
+        // hidden row ko ignore kare
+        if(r.style.display=="none") return;
+
+        if(r.id=="nonZeroCountRow") return;
+        // Grand Total row ko ignore kare
+        if(r.id=="tableGrandTotal") return;
+
+
+        m += parseFloat(r.cells[11].innerText) || 0;
+        t += parseFloat(r.cells[12].innerText) || 0;
+        l += parseFloat(r.cells[13].innerText) || 0;
+        p += parseFloat(r.cells[14].innerText) || 0;
+
+        pay += parseFloat(r.cells[15].innerText) || 0;
+        paid += parseFloat(r.cells[16].innerText) || 0;
+        total += parseFloat(r.cells[17].innerText) || 0;
+
+
+    });
+
+
+
+    const totalRow=document.getElementById("tableGrandTotal");
+
+
+    if(totalRow){
+
+        totalRow.cells[11].innerText=m.toFixed(2);
+        totalRow.cells[12].innerText=t.toFixed(2);
+        totalRow.cells[13].innerText=l.toFixed(2);
+        totalRow.cells[14].innerText=p.toFixed(2);
+
+        totalRow.cells[15].innerText=pay.toFixed(2);
+        totalRow.cells[16].innerText=paid.toFixed(2);
+        totalRow.cells[17].innerText=total.toFixed(2);
+
+    }
+
+}
+
+document.addEventListener("click",function(e){
+
+    if(!popup.contains(e.target)){
+
+        popup.style.display="none";
+
+    }
+
+});
+
+
+
+
+let zoom = 100;
+
+function applyZoom() {
+
+    const table = document.getElementById("detailTable");
+
+    table.style.fontSize = zoom + "%";
+
+    document.querySelectorAll("#detailTable th,#detailTable td").forEach(c=>{
+        c.style.padding = (zoom/10) + "px";
+    });
+
+}
+
+function zoomIn(){
+    if(zoom<200){
+        zoom+=10;
+        applyZoom();
+    }
+}
+
+function zoomOut(){
+    if(zoom>10){
+        zoom-=10;
+        applyZoom();
+    }
+}
+
+function resetZoom(){
+    zoom=100;
+    applyZoom();
+}
+</script>
+
+
+
+</body>
+</html>
+

@@ -1,36 +1,42 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <title>Mera Dashboard</title>
     <style>
-        body { margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; }
-        .sidbar { width: 220px; background: #2c3e50; color: white; padding: 20px; }
-        .sidebar button {
-            display: block; width: 100%; padding: 12px; margin-bottom: 10px;
-            background: #34495e; color: white; border: none; text-align: left;
-            cursor: pointer; border-radius: 5px; font-size: 16px;
+        body { margin: 0; font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        /* Upar ki patti (Top Bar) */
+        .topbar { 
+            background: #2c3e50; color: white; padding: 10px 20px; 
+            display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .sidebar button:hover { background: #1abc9c; }
-        .content { flex: 1; border: none; height: 100%; }
+        .topbar h3 { margin: 0 20px 0 0; font-size: 18px; }
+        .topbar button {
+            padding: 8px 16px; background: #34495e; color: white; 
+            border: none; cursor: pointer; border-radius: 4px; font-size: 15px;
+        }
+        .topbar button:hover, .topbar button.active { background: #1abc9c; }
+        .content { flex: 1; border: none; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="sidear">
-        <h3>Mere Tools</h3>
-        <!-- Buttons par click karne se iframe ka page badlega -->
-        <button onclick="loadPage('‎FeeDay.html')">Fee Day</button>
-        <button onclick="loadPage('For_calling.html')">For Calling</button>
-        <button onclick="loadPage('Studentladgerreportindex1.4.html')">Student Ladger Report</button>
+    <div class="topbar">
+        <h3>Mere Tools:</h3>
+        <button class="active" onclick="loadPage('FeeDay.html', this)">Kaam 1</button>
+        <button onclick="loadPage('For_calling.html', this)">Kaam 2</button>
+        <button onclick="loadPage('Studentladgerreportindex1.4.html', this)">Kaam 3</button>
     </div>
 
-    <!-- Yahan aapke chote pages khulenge -->
     <iframe id="main-frame" class="content" src="FeeDay.html"></iframe>
 
     <script>
-        function loadPage(pageUrl) {
+        function loadPage(pageUrl, btn) {
             document.getElementById('main-frame').src = pageUrl;
+            // Active button ka rang badalne ke liye
+            document.querySelectorAll('.topbar button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
     </script>
 

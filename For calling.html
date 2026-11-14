@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Google Sheet Dialer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 12px;
+            background-color: #f4f6f9;
+        }
+        h3 {
+            color: #222;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .paste-box {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border: 2px dashed #0066cc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #004499;
+            background-color: #f0f8ff;
+        }
+        .btn-clear {
+            margin-top: 8px;
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+                table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 650px;
+             /* Sabhi rows aur columns ki width ek saman rakhega */
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+            white-space: nowrap;      /* Text ko wrap hone se rokega */
+            overflow: hidden;         /* Extra text ko bahar nahi nikalne dega */
+            text-overflow: ellipsis;  /* Lamba text hone par aakhir mein ... dikhayega */
+        }
+
+        tr.total-row {
+            background-color: #f1f3f5;
+            font-weight: bold;
+        }
+        .duplicate-row {
+            background-color: #d0ebff !important;
+        }
+        a.phone-link {
+            color: #0066cc;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 5px 8px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 1px solid #b3d7ff;
+            border-radius: 4px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        a.phone-link:active {
+            background-color: #cce5ff;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>Google Sheet Data Paste Karein</h3>
+    
+    <div class="paste-box">
+        <textarea id="pasteInput" placeholder="Google Sheet se data Copy karke yahan Paste karein..."></textarea>
+        <button class="btn-clear" onclick="clearData()">Clear Karein</button>
+    </div>
+
+    <div class="table-container" id="tableContainer"></div>
+
+    <!-- JavaScript file ko yahan link kiya gaya hai -->
+    <script>
+const pasteInput = document.getElementById('pasteInput');
+
+// Paste event ko pakdein taaki HTML colors (Green rows) bhi mil sakein
+pasteInput.addEventListener('paste', function(e) {
+    e.preventDefault();
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const htmlData = clipboardData.getData('text/html');
+    const plainText = clipboardData.getData('text/plain');
+
+    this.value = plainText;
+
+    if (htmlData && htmlData.includes('<table')) {
+        processHtmlData(htmlData);
+    } else if (plainText.trim()) {
+        processPlainData(plainText);
+    }
+});
+
+function clearData() {
+    pasteInput.value = "";
+    document.getElementById('tableContainer').innerHTML = "";
+}
+
+// HTML table data (Green color ke saath) process karein
+function processHtmlData(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const trs = Array.from(doc.querySelectorAll('tr'));
+    const parsedRows = [];
+
+    // Shuru ke 4 rows chhod kar 5th row (index 4) se shuru karein
+    for (let i = 4; i < trs.length; i++) {
+        const cells = Array.from(trs[i].querySelectorAll('td, th'));
+        const rowValues = cells.map(c => c.textContent.trim());
+
+        if (rowValues.every(val => val === "")) continue;
+
+        let greenBg = "";
+        const trBg = trs[i].style.backgroundColor || trs[i].getAttribute('bgcolor');
+        if (isGreenColor(trBg)) {
+            greenBg = trBg;
+        } else {
+            for (let cell of cells) {
+                const cellBg = cell.style.backgroundColor || cell.getAttribute('bgcolor');
+                if (isGreenColor(cellBg)) {
+                    greenBg = cellBg;
+                    break;
+                }
+            }
+        }
+
+        parsedRows.push({ values: rowValues, greenBg: greenBg });
+
+        // "Total" row milne par yahin ruk jayein
+        const isTotalRow = rowValues.some(cell => cell.toLowerCase().includes('total'));
+        if (isTotalRow) break;
+    }
+
+    renderTable(parsedRows);
+}
+
+// Agar sirf plain text paste hua ho
+function processPlainData(text) {
+    const lines = text.split(/\r?\n/);
+    const parsedRows = [];
+
+    for (let i = 4; i < lines.length; i++) {
+        const rowValues = lines[i].split('\t').map(v => v.trim());
+        if (rowValues.every(val => val === "")) continue;
+
+        parsedRows.push({ values: rowValues, greenBg: "" });
+
+        const isTotalRow = rowValues.some(cell => cell.toLowerCase().includes('total'));
+        if (isTotalRow) break;
+    }
+
+    renderTable(parsedRows);
+}
+
+// Check karein ki color Green shade ka hai ya nahi
+function isGreenColor(colorStr) {
+    if (!colorStr) return false;
+    const c = colorStr.toLowerCase().trim();
+    if (c === 'transparent' || c === 'white' || c === '#ffffff' || c === 'rgb(255, 255, 255)') return false;
+    if (c.includes('green')) return true;
+
+    const rgbMatch = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbMatch) {
+        const r = parseInt(rgbMatch[1]);
+        const g = parseInt(rgbMatch[2]);
+        const b = parseInt(rgbMatch[3]);
+        return (g > r + 10 && g > b + 10);
+    }
+
+    if (c.startsWith('#') && (c.length === 7 || c.length === 4)) {
+        let hex = c.slice(1);
+        if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        return (g > r + 10 && g > b + 10);
+    }
+
+    return false;
+}
+// Table ko screen par banayein
+function renderTable(rows) {
+    const container = document.getElementById('tableContainer');
+    container.innerHTML = "";
+
+    if (rows.length === 0) return;
+
+    // Step 1: Pata lagayein ki asli data kitne columns tak hai (extra khali green cells hatane ke liye)
+    let actualMaxCols = 6; // Kam se kam Column F (6 columns) tak dikhayein
+    rows.forEach(rowObj => {
+        for (let c = rowObj.values.length - 1; c >= 0; c--) {
+            if (rowObj.values[c] !== "") {
+                if (c + 1 > actualMaxCols) {
+                    actualMaxCols = c + 1;
+                }
+                break;
+            }
+        }
+    });
+
+    // Step 2: Column D (index 3) mein duplicate names count karein
+    const nameCounts = {};
+    rows.forEach(rowObj => {
+        const isTotalRow = rowObj.values.some(cell => cell.toLowerCase().includes('total'));
+        if (!isTotalRow) {
+            const name = String(rowObj.values[3] || "").trim().toLowerCase();
+            if (name !== "") {
+                nameCounts[name] = (nameCounts[name] || 0) + 1;
+            }
+        }
+    });
+
+    const table = document.createElement('table');
+
+    // Step 3: Sabhi rows ko bilkul barabar columns (actualMaxCols) ke saath banayein
+    rows.forEach(rowObj => {
+        const row = rowObj.values;
+        const tr = document.createElement('tr');
+        const isTotalRow = row.some(cell => cell.toLowerCase().includes('total'));
+
+        if (isTotalRow) {
+            tr.classList.add('total-row');
+        } else if (rowObj.greenBg !== "") {
+            tr.style.backgroundColor = rowObj.greenBg;
+        } else {
+            const currentName = String(row[3] || "").trim().toLowerCase();
+            if (currentName !== "" && nameCounts[currentName] > 1) {
+                tr.classList.add('duplicate-row');
+            }
+        }
+
+        // Har row mein sirf actualMaxCols tak hi cells banayein
+        for (let colIndex = 0; colIndex < actualMaxCols; colIndex++) {
+            const td = document.createElement('td');
+            const cellValue = row[colIndex] !== undefined ? String(row[colIndex]).trim() : "";
+
+            // Column E (index 4) aur Column F (index 5) ko Dialer Link banayein
+            if (!isTotalRow && (colIndex === 4 || colIndex === 5) && cellValue !== "") {
+                const cleanNumber = cellValue.replace(/[^0-9+]/g, '');
+                if (cleanNumber.length >= 5) {
+                    const link = document.createElement('a');
+                    link.href = `tel:${cleanNumber}`;
+                    link.className = 'phone-link';
+                    link.textContent = `📞 ${cellValue}`;
+                    td.appendChild(link);
+                } else {
+                    td.textContent = cellValue;
+                }
+            } else {
+                td.textContent = cellValue;
+            }
+
+            tr.appendChild(td);
+        }
+
+        table.appendChild(tr);
+    });
+
+    container.appendChild(table);
+}
+
+
+</script>
+
+</body>
+</html>

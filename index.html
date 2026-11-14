@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Mera Dashboard</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; }
+        .sidebar { width: 220px; background: #2c3e50; color: white; padding: 20px; }
+        .sidebar button {
+            display: block; width: 100%; padding: 12px; margin-bottom: 10px;
+            background: #34495e; color: white; border: none; text-align: left;
+            cursor: pointer; border-radius: 5px; font-size: 16px;
+        }
+        .sidebar button:hover { background: #1abc9c; }
+        .content { flex: 1; border: none; height: 100%; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h3>Mere Tools</h3>
+        <!-- Buttons par click karne se iframe ka page badlega -->
+        <button onclick="loadPage('Feeday.html')">Fee Day</button>
+        <button onclick="loadPage('For_calling.html')">For Calling</button>
+        <button onclick="loadPage('studentladgerindex1.4.html')">Student Ladger Report</button>
+    </div>
+
+    <!-- Yahan aapke chote pages khulenge -->
+    <iframe id="main-frame" class="content" src="page1.html"></iframe>
+
+    <script>
+        function loadPage(pageUrl) {
+            document.getElementById('main-frame').src = pageUrl;
+        }
+    </script>
+
+</body>
+</html>

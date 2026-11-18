@@ -107,6 +107,29 @@
     <script>
 const pasteInput = document.getElementById('pasteInput');
 
+// Storage ke liye keys
+const STORAGE_ROWS_KEY = 'savedTableRowsData';
+const STORAGE_TEXT_KEY = 'savedPasteInputText';
+
+// Page load hone par purana saved data wapas dikhayein
+window.addEventListener('DOMContentLoaded', function() {
+    const savedText = localStorage.getItem(STORAGE_TEXT_KEY);
+    const savedRows = localStorage.getItem(STORAGE_ROWS_KEY);
+
+    if (savedText) {
+        pasteInput.value = savedText;
+    }
+
+    if (savedRows) {
+        try {
+            const parsedRows = JSON.parse(savedRows);
+            renderTable(parsedRows);
+        } catch (error) {
+            console.error("Saved data load karne mein error:", error);
+        }
+    }
+});
+
 // Paste event ko pakdein taaki HTML colors (Green rows) bhi mil sakein
 pasteInput.addEventListener('paste', function(e) {
     e.preventDefault();
@@ -115,6 +138,7 @@ pasteInput.addEventListener('paste', function(e) {
     const plainText = clipboardData.getData('text/plain');
 
     this.value = plainText;
+    localStorage.setItem(STORAGE_TEXT_KEY, plainText); // Textarea ko save karein
 
     if (htmlData && htmlData.includes('<table')) {
         processHtmlData(htmlData);
@@ -123,9 +147,12 @@ pasteInput.addEventListener('paste', function(e) {
     }
 });
 
+// Clear button dabane par screen aur Local Storage dono saaf karein
 function clearData() {
     pasteInput.value = "";
     document.getElementById('tableContainer').innerHTML = "";
+    localStorage.removeItem(STORAGE_ROWS_KEY);
+    localStorage.removeItem(STORAGE_TEXT_KEY);
 }
 
 // HTML table data (Green color ke saath) process karein
@@ -163,6 +190,8 @@ function processHtmlData(html) {
         if (isTotalRow) break;
     }
 
+    // Processed rows (greenBg ke saath) ko Local Storage mein save karein
+    localStorage.setItem(STORAGE_ROWS_KEY, JSON.stringify(parsedRows));
     renderTable(parsedRows);
 }
 
@@ -181,6 +210,8 @@ function processPlainData(text) {
         if (isTotalRow) break;
     }
 
+    // Processed rows ko Local Storage mein save karein
+    localStorage.setItem(STORAGE_ROWS_KEY, JSON.stringify(parsedRows));
     renderTable(parsedRows);
 }
 
@@ -210,6 +241,7 @@ function isGreenColor(colorStr) {
 
     return false;
 }
+
 // Table ko screen par banayein
 function renderTable(rows) {
     const container = document.getElementById('tableContainer');
@@ -217,8 +249,8 @@ function renderTable(rows) {
 
     if (rows.length === 0) return;
 
-    // Step 1: Pata lagayein ki asli data kitne columns tak hai (extra khali green cells hatane ke liye)
-    let actualMaxCols = 6; // Kam se kam Column F (6 columns) tak dikhayein
+    // Step 1: Pata lagayein ki asli data kitne columns tak hai
+    let actualMaxCols = 6;
     rows.forEach(rowObj => {
         for (let c = rowObj.values.length - 1; c >= 0; c--) {
             if (rowObj.values[c] !== "") {
@@ -244,7 +276,7 @@ function renderTable(rows) {
 
     const table = document.createElement('table');
 
-    // Step 3: Sabhi rows ko bilkul barabar columns (actualMaxCols) ke saath banayein
+    // Step 3: Sabhi rows ko bilkul barabar columns ke saath banayein
     rows.forEach(rowObj => {
         const row = rowObj.values;
         const tr = document.createElement('tr');
@@ -261,7 +293,6 @@ function renderTable(rows) {
             }
         }
 
-        // Har row mein sirf actualMaxCols tak hi cells banayein
         for (let colIndex = 0; colIndex < actualMaxCols; colIndex++) {
             const td = document.createElement('td');
             const cellValue = row[colIndex] !== undefined ? String(row[colIndex]).trim() : "";
@@ -290,9 +321,8 @@ function renderTable(rows) {
 
     container.appendChild(table);
 }
-
-
 </script>
+
 
 </body>
 </html>

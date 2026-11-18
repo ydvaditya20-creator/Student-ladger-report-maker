@@ -90,9 +90,79 @@
         a.phone-link:active {
             background-color: #cce5ff;
         }
-    </style>
+
+<!-- CSS Styling for Toggle & Cards -->
+<style>
+    .controls-bar {
+        margin: 15px 0;
+        display: flex;
+        gap: 10px;
+    }
+    .toggle-btn {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .toggle-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* Card View Grid Layout */
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .data-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .data-card.duplicate-row {
+        background-color: #fff3cd; /* Duplicate highlight */
+        border-color: #ffeeba;
+    }
+    .data-card.total-row {
+        background-color: #e2e3e5;
+        font-weight: bold;
+        border: 2px solid #6c757d;
+    }
+    .card-row {
+        margin-bottom: 8px;
+        font-size: 14px;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 4px;
+    }
+    .card-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .card-label {
+        font-weight: bold;
+        color: #555;
+        margin-right: 5px;
+    }
+</style>
+
 </head>
 <body>
+
+<!-- HTML Button (Clear button ke paas lagayein) -->
+<div class="controls-bar">
+    <button type="button" onclick="clearData()">Clear Data</button>
+    <button type="button" id="viewToggleBtn" class="toggle-btn" onclick="toggleView()">📇 Card View Dekhein</button>
+</div>
+
+
+   
+
 
     <h3>Google Sheet Data Paste Karein</h3>
     
@@ -105,14 +175,22 @@
 
     <!-- JavaScript file ko yahan link kiya gaya hai -->
     <script>
+
 const pasteInput = document.getElementById('pasteInput');
+const viewToggleBtn = document.getElementById('viewToggleBtn');
 
 // Storage ke liye keys
 const STORAGE_ROWS_KEY = 'savedTableRowsData';
 const STORAGE_TEXT_KEY = 'savedPasteInputText';
+const STORAGE_VIEW_KEY = 'savedViewMode';
 
-// Page load hone par purana saved data wapas dikhayein
+// Current View Mode ('table' ya 'card')
+let currentView = localStorage.getItem(STORAGE_VIEW_KEY) || 'table';
+
+// Page load hone par purana saved data aur view mode wapas dikhayein
 window.addEventListener('DOMContentLoaded', function() {
+    updateToggleButtonText();
+
     const savedText = localStorage.getItem(STORAGE_TEXT_KEY);
     const savedRows = localStorage.getItem(STORAGE_ROWS_KEY);
 
@@ -123,14 +201,35 @@ window.addEventListener('DOMContentLoaded', function() {
     if (savedRows) {
         try {
             const parsedRows = JSON.parse(savedRows);
-            renderTable(parsedRows);
+            renderData(parsedRows);
         } catch (error) {
             console.error("Saved data load karne mein error:", error);
         }
     }
 });
 
-// Paste event ko pakdein taaki HTML colors (Green rows) bhi mil sakein
+// View toggle karne ka function
+function toggleView() {
+    currentView = (currentView === 'table') ? 'card' : 'table';
+    localStorage.setItem(STORAGE_VIEW_KEY, currentView);
+    updateToggleButtonText();
+
+    const savedRows = localStorage.getItem(STORAGE_ROWS_KEY);
+    if (savedRows) {
+        renderData(JSON.parse(savedRows));
+    }
+}
+
+function updateToggleButtonText() {
+    if (!viewToggleBtn) return;
+    if (currentView === 'table') {
+        viewToggleBtn.textContent = "📇 Card View Dekhein";
+    } else {
+        viewToggleBtn.textContent = "📊 Table View Dekhein";
+    }
+}
+
+// Paste event
 pasteInput.addEventListener('paste', function(e) {
     e.preventDefault();
     const clipboardData = e.clipboardData || window.clipboardData;
@@ -138,7 +237,7 @@ pasteInput.addEventListener('paste', function(e) {
     const plainText = clipboardData.getData('text/plain');
 
     this.value = plainText;
-    localStorage.setItem(STORAGE_TEXT_KEY, plainText); // Textarea ko save karein
+    localStorage.setItem(STORAGE_TEXT_KEY, plainText);
 
     if (htmlData && htmlData.includes('<table')) {
         processHtmlData(htmlData);
@@ -155,14 +254,13 @@ function clearData() {
     localStorage.removeItem(STORAGE_TEXT_KEY);
 }
 
-// HTML table data (Green color ke saath) process karein
+// HTML table data process karein
 function processHtmlData(html) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     const trs = Array.from(doc.querySelectorAll('tr'));
     const parsedRows = [];
 
-    // Shuru ke 4 rows chhod kar 5th row (index 4) se shuru karein
     for (let i = 4; i < trs.length; i++) {
         const cells = Array.from(trs[i].querySelectorAll('td, th'));
         const rowValues = cells.map(c => c.textContent.trim());
@@ -185,17 +283,15 @@ function processHtmlData(html) {
 
         parsedRows.push({ values: rowValues, greenBg: greenBg });
 
-        // "Total" row milne par yahin ruk jayein
         const isTotalRow = rowValues.some(cell => cell.toLowerCase().includes('total'));
         if (isTotalRow) break;
     }
 
-    // Processed rows (greenBg ke saath) ko Local Storage mein save karein
     localStorage.setItem(STORAGE_ROWS_KEY, JSON.stringify(parsedRows));
-    renderTable(parsedRows);
+    renderData(parsedRows);
 }
 
-// Agar sirf plain text paste hua ho
+// Plain text process karein
 function processPlainData(text) {
     const lines = text.split(/\r?\n/);
     const parsedRows = [];
@@ -210,12 +306,11 @@ function processPlainData(text) {
         if (isTotalRow) break;
     }
 
-    // Processed rows ko Local Storage mein save karein
     localStorage.setItem(STORAGE_ROWS_KEY, JSON.stringify(parsedRows));
-    renderTable(parsedRows);
+    renderData(parsedRows);
 }
 
-// Check karein ki color Green shade ka hai ya nahi
+// Green color check karein
 function isGreenColor(colorStr) {
     if (!colorStr) return false;
     const c = colorStr.toLowerCase().trim();
@@ -242,27 +337,24 @@ function isGreenColor(colorStr) {
     return false;
 }
 
-// Table ko screen par banayein
-function renderTable(rows) {
+// Main Render Router (Table ya Card chunein)
+function renderData(rows) {
     const container = document.getElementById('tableContainer');
     container.innerHTML = "";
+    if (!rows || rows.length === 0) return;
 
-    if (rows.length === 0) return;
-
-    // Step 1: Pata lagayein ki asli data kitne columns tak hai
+    // Max columns calculate karein
     let actualMaxCols = 6;
     rows.forEach(rowObj => {
         for (let c = rowObj.values.length - 1; c >= 0; c--) {
             if (rowObj.values[c] !== "") {
-                if (c + 1 > actualMaxCols) {
-                    actualMaxCols = c + 1;
-                }
+                if (c + 1 > actualMaxCols) actualMaxCols = c + 1;
                 break;
             }
         }
     });
 
-    // Step 2: Column D (index 3) mein duplicate names count karein
+    // Duplicate names count karein (Column D / index 3)
     const nameCounts = {};
     rows.forEach(rowObj => {
         const isTotalRow = rowObj.values.some(cell => cell.toLowerCase().includes('total'));
@@ -274,9 +366,17 @@ function renderTable(rows) {
         }
     });
 
+    if (currentView === 'card') {
+        renderCards(rows, actualMaxCols, nameCounts, container);
+    } else {
+        renderTable(rows, actualMaxCols, nameCounts, container);
+    }
+}
+
+// 1. TABLE VIEW RENDERER
+function renderTable(rows, actualMaxCols, nameCounts, container) {
     const table = document.createElement('table');
 
-    // Step 3: Sabhi rows ko bilkul barabar columns ke saath banayein
     rows.forEach(rowObj => {
         const row = rowObj.values;
         const tr = document.createElement('tr');
@@ -297,7 +397,6 @@ function renderTable(rows) {
             const td = document.createElement('td');
             const cellValue = row[colIndex] !== undefined ? String(row[colIndex]).trim() : "";
 
-            // Column E (index 4) aur Column F (index 5) ko Dialer Link banayein
             if (!isTotalRow && (colIndex === 4 || colIndex === 5) && cellValue !== "") {
                 const cleanNumber = cellValue.replace(/[^0-9+]/g, '');
                 if (cleanNumber.length >= 5) {
@@ -321,6 +420,73 @@ function renderTable(rows) {
 
     container.appendChild(table);
 }
+
+// 2. CARD VIEW RENDERER
+function renderCards(rows, actualMaxCols, nameCounts, container) {
+    const grid = document.createElement('div');
+    grid.className = 'card-grid';
+
+    // Pehli row ko headers maan kar labels nikal lein
+    const headers = rows[0] ? rows[0].values : [];
+
+    rows.forEach((rowObj, rowIndex) => {
+        const row = rowObj.values;
+        const isTotalRow = row.some(cell => cell.toLowerCase().includes('total'));
+
+        if (rowIndex === 0 && !isTotalRow) return;
+
+        const card = document.createElement('div');
+        card.className = 'data-card';
+
+        if (isTotalRow) {
+            card.classList.add('total-row');
+        } else if (rowObj.greenBg !== "") {
+            card.style.backgroundColor = rowObj.greenBg;
+        } else {
+            const currentName = String(row[3] || "").trim().toLowerCase();
+            if (currentName !== "" && nameCounts[currentName] > 1) {
+                card.classList.add('duplicate-row');
+            }
+        }
+
+        for (let colIndex = 0; colIndex < actualMaxCols; colIndex++) {
+            const cellValue = row[colIndex] !== undefined ? String(row[colIndex]).trim() : "";
+            if (cellValue === "") continue;
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'card-row';
+
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'card-label';
+            const headerName = headers[colIndex] ? headers[colIndex] : `Col ${colIndex + 1}`;
+            labelSpan.textContent = isTotalRow ? "" : `${headerName}: `;
+            rowDiv.appendChild(labelSpan);
+
+            if (!isTotalRow && (colIndex === 4 || colIndex === 5)) {
+                const cleanNumber = cellValue.replace(/[^0-9+]/g, '');
+                if (cleanNumber.length >= 5) {
+                    const link = document.createElement('a');
+                    link.href = `tel:${cleanNumber}`;
+                    link.className = 'phone-link';
+                    link.textContent = `📞 ${cellValue}`;
+                    rowDiv.appendChild(link);
+                } else {
+                    rowDiv.appendChild(document.createTextNode(cellValue));
+                }
+            } else {
+                rowDiv.appendChild(document.createTextNode(cellValue));
+            }
+
+            card.appendChild(rowDiv);
+        }
+
+        grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+}
+
+
 </script>
 
 
